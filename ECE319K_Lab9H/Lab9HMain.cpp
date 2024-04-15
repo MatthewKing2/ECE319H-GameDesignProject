@@ -19,9 +19,14 @@
 #include "Switch.h"
 #include "Sound.h"
 #include "images/images.h"
+// My custom code 
+#include "Player.h"
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
+
+
+
 // ****note to ECE319K students****
 // the data sheet says the ADC does not work when clock is 80 MHz
 // however, the ADC seems to work on my boards at 80 MHz
@@ -39,6 +44,9 @@ uint32_t Random32(void){
 uint32_t Random(uint32_t n){
   return (Random32()>>16)%n;
 }
+
+
+
 
 SlidePot Sensor(1500,0); // copy calibration from Lab 7
 
@@ -61,6 +69,12 @@ uint8_t TExaS_LaunchPadLogicPB27PB26(void){
   return (0x80|((GPIOB->DOUT31_0>>26)&0x03));
 }
 
+
+
+
+
+
+
 typedef enum {English, Spanish, Portuguese, French} Language_t;
 Language_t myLanguage=English;
 typedef enum {HELLO, GOODBYE, LANGUAGE} phrase_t;
@@ -82,7 +96,7 @@ const char *Phrases[3][4]={
   {Language_English,Language_Spanish,Language_Portuguese,Language_French}
 };
 // use main1 to observe special characters
-int main(void){ // main1
+int main1(void){ // main1
     char l;
   __disable_irq();
   PLL_Init(); // set bus speed
@@ -116,8 +130,14 @@ int main(void){ // main1
   }
 }
 
+
+
+
+
+
+
 // use main2 to observe graphics
-int main2(void){ // main2
+int main(void){ // main2
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -125,33 +145,114 @@ int main2(void){ // main2
     //note: if you colors are weird, see different options for
     // ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
   ST7735_FillScreen(ST7735_BLACK);
-  ST7735_DrawBitmap(22, 159, PlayerShip0, 18,8); // player ship bottom
-  ST7735_DrawBitmap(53, 151, Bunker0, 18,5);
-  ST7735_DrawBitmap(42, 159, PlayerShip1, 18,8); // player ship bottom
-  ST7735_DrawBitmap(62, 159, PlayerShip2, 18,8); // player ship bottom
-  ST7735_DrawBitmap(82, 159, PlayerShip3, 18,8); // player ship bottom
-  ST7735_DrawBitmap(0, 9, SmallEnemy10pointA, 16,10);
-  ST7735_DrawBitmap(20,9, SmallEnemy10pointB, 16,10);
-  ST7735_DrawBitmap(40, 9, SmallEnemy20pointA, 16,10);
-  ST7735_DrawBitmap(60, 9, SmallEnemy20pointB, 16,10);
-  ST7735_DrawBitmap(80, 9, SmallEnemy30pointA, 16,10);
+  // ST7735_DrawBitmap(22, 159, PlayerShip0, 18,8); // player ship bottom
+  // ST7735_DrawBitmap(53, 151, Bunker0, 18,5);
+  // ST7735_DrawBitmap(42, 159, PlayerShip1, 18,8); // player ship bottom
+  // ST7735_DrawBitmap(62, 159, PlayerShip2, 18,8); // player ship bottom
+  // ST7735_DrawBitmap(82, 159, PlayerShip3, 18,8); // player ship bottom
+  // ST7735_DrawBitmap(0, 9, SmallEnemy10pointA, 16,10);
+  // ST7735_DrawBitmap(20,9, SmallEnemy10pointB, 16,10);
+  // ST7735_DrawBitmap(40, 9, SmallEnemy20pointA, 16,10);
+  // ST7735_DrawBitmap(60, 9, SmallEnemy20pointB, 16,10);
+  // ST7735_DrawBitmap(80, 9, SmallEnemy30pointA, 16,10);
 
-  for(uint32_t t=500;t>0;t=t-5){
-    SmallFont_OutVertical(t,104,6); // top left
-    Clock_Delay1ms(50);              // delay 50 msec
-  }
-  ST7735_FillScreen(0x0000);   // set screen to black
-  ST7735_SetCursor(1, 1);
-  ST7735_OutString((char *)"GAME OVER");
-  ST7735_SetCursor(1, 2);
-  ST7735_OutString((char *)"Nice try,");
-  ST7735_SetCursor(1, 3);
-  ST7735_OutString((char *)"Earthling!");
-  ST7735_SetCursor(2, 4);
-  ST7735_OutUDec(1234);
+  // for(uint32_t t=500;t>0;t=t-5){
+  //   SmallFont_OutVertical(t,104,6); // top left
+  //   Clock_Delay1ms(50);              // delay 50 msec
+  // }
+  // ST7735_FillScreen(0x0000);   // set screen to black
+  // ST7735_SetCursor(1, 1);
+  // ST7735_OutString((char *)"GAME OVER");
+  // ST7735_SetCursor(1, 2);
+  // ST7735_OutString((char *)"Nice try,");
+  // ST7735_SetCursor(1, 3);
+  // ST7735_OutString((char *)"Earthling!");
+  // ST7735_SetCursor(2, 4);
+  // ST7735_OutUDec(1234);
   while(1){
+    Clock_Delay1ms(1000);              // delay 50 msec
+    // ST7735_FillRect(100, 100, 16, 16, ST7735_Color565(255, 0, 0));
+    // ST7735_FillRect(50, 50, 8, 8, ST7735_Color565(0, 255, 0));
+    // ST7735_FillRect(0, 0, 8, 8, ST7735_Color565(0, 0, 255));
+    // Clock_Delay1ms(1000);              // delay 50 msec
+    // ST7735_FillScreen(0x0000);   // set screen to black
+
+    ST7735_FillScreen(0x0000);   // set screen to black
+
+    // Want to test movment speed stuff 
+    // Either 3 or 4 pixles at a time is the best movment speed 
+    // Maybe the person with the gun gets to go slightly faster then :)
+    // uint16_t color = ST7735_Color565(0, 255, 0);
+    // for(int j = 1; j < 10; j ++){
+    //   for(int i = 0; i < 100; i+=j){
+    //     SmallFont_OutVertical(j,104,6); // top left
+    //     ST7735_FillRect(0+i, 0+i, 8, 8, color);
+    //     Clock_Delay1ms(33);              // delay 50 msec
+    //   }
+    //   ST7735_FillScreen(0x0000);   // set screen to black
+    // }
+
+    // Also testing rotation bs
+    // void ST7735_SetRotation(uint8_t m) {
+
+      // Concluded that rotation 3 is the one I want 
+    // for(uint8_t rote = 0; rote < 4; rote++){
+    //   ST7735_FillScreen(0x0000);   // set screen to black
+    //   ST7735_SetRotation(rote);
+    //   int offsetY = 5;
+    //   int offsetX = -10;
+    //   SmallFont_OutVertical(rote,0+offsetX,0+offsetY); // top left
+    //   SmallFont_OutVertical(rote,20+offsetX,20+offsetY); // top left
+    //   SmallFont_OutVertical(rote,40+offsetX,40+offsetY); // top left
+    //   Clock_Delay1ms(1000);              // delay 50 msec
+    // }
+
+
+    // ST7735_FillScreen(0x0000);   // set screen to black
+
+
+
+      ST7735_SetRotation(3);
+      // MaxX = 160-(Size+1)
+      // MaxY = 128-(Size+1)
+      // Now trying to do stuff with the player 
+      uint16_t white = ST7735_Color565(255, 255, 255);
+      uint16_t red = ST7735_Color565(255, 0, 0);
+      uint16_t green = ST7735_Color565(0, 255, 0);
+      uint16_t blue = ST7735_Color565(0, 0, 255);
+
+      Player p1(0, 0, 0, false);
+      Player p2(160-8, 128-8, 0, false);
+      Player p3(160-8, 0, 0, false);    // Seeing this guy
+      Player p4(0, 128-8, 0, false);
+
+      char msg[10] = {'H','e','l', 'l', 'o', ' ', 'B', 'o', 'b', '\0'};
+      ST7735_SetCursor(1, 1);
+      ST7735_OutString(msg);
+
+      int rate = 2;
+      for(int j = 1; j < 40; j ++){
+        ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
+        ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);
+        ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
+        ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
+
+        p1.move(rate, rate);
+        p2.move(-rate, -rate);
+        p3.move(-rate, 0);
+        p4.move(0, -rate);
+
+        Clock_Delay1ms(33);              // delay 50 msec
+      }
+
+    } // end of while(1)
+
   }
-}
+
+
+
+
+
 
 // use main3 to test switches and LEDs
 int main3(void){ // main3
@@ -165,6 +266,14 @@ int main3(void){ // main3
    
   }
 }
+
+
+
+
+
+
+
+
 // use main4 to test sound outputs
 int main4(void){ uint32_t last=0,now;
   __disable_irq();
@@ -192,6 +301,13 @@ int main4(void){ uint32_t last=0,now;
     // modify this to test all your sounds
   }
 }
+
+
+
+
+
+
+
 // ALL ST7735 OUTPUT MUST OCCUR IN MAIN
 int main5(void){ // final main
   __disable_irq();
