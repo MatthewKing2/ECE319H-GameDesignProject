@@ -170,47 +170,8 @@ int main(void){ // main2
   // ST7735_SetCursor(2, 4);
   // ST7735_OutUDec(1234);
   while(1){
-    Clock_Delay1ms(1000);              // delay 50 msec
-    // ST7735_FillRect(100, 100, 16, 16, ST7735_Color565(255, 0, 0));
-    // ST7735_FillRect(50, 50, 8, 8, ST7735_Color565(0, 255, 0));
-    // ST7735_FillRect(0, 0, 8, 8, ST7735_Color565(0, 0, 255));
-    // Clock_Delay1ms(1000);              // delay 50 msec
-    // ST7735_FillScreen(0x0000);   // set screen to black
-
-    ST7735_FillScreen(0x0000);   // set screen to black
-
-    // Want to test movment speed stuff 
-    // Either 3 or 4 pixles at a time is the best movment speed 
-    // Maybe the person with the gun gets to go slightly faster then :)
-    // uint16_t color = ST7735_Color565(0, 255, 0);
-    // for(int j = 1; j < 10; j ++){
-    //   for(int i = 0; i < 100; i+=j){
-    //     SmallFont_OutVertical(j,104,6); // top left
-    //     ST7735_FillRect(0+i, 0+i, 8, 8, color);
-    //     Clock_Delay1ms(33);              // delay 50 msec
-    //   }
-    //   ST7735_FillScreen(0x0000);   // set screen to black
-    // }
-
-    // Also testing rotation bs
-    // void ST7735_SetRotation(uint8_t m) {
-
-      // Concluded that rotation 3 is the one I want 
-    // for(uint8_t rote = 0; rote < 4; rote++){
-    //   ST7735_FillScreen(0x0000);   // set screen to black
-    //   ST7735_SetRotation(rote);
-    //   int offsetY = 5;
-    //   int offsetX = -10;
-    //   SmallFont_OutVertical(rote,0+offsetX,0+offsetY); // top left
-    //   SmallFont_OutVertical(rote,20+offsetX,20+offsetY); // top left
-    //   SmallFont_OutVertical(rote,40+offsetX,40+offsetY); // top left
-    //   Clock_Delay1ms(1000);              // delay 50 msec
-    // }
-
-
-    // ST7735_FillScreen(0x0000);   // set screen to black
-
-
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(0x0000);   // set screen to black
 
       ST7735_SetRotation(3);
       // MaxX = 160-(Size+1)
@@ -223,26 +184,29 @@ int main(void){ // main2
 
       Player p1(0, 0, 0, false);
       Player p2(160-8, 128-8, 0, false);
-      Player p3(160-8, 0, 0, false);    // Seeing this guy
+      Player p3(160-8, 0, 0, false);  
       Player p4(0, 128-8, 0, false);
 
       char msg[10] = {'H','e','l', 'l', 'o', ' ', 'B', 'o', 'b', '\0'};
       ST7735_SetCursor(1, 1);
       ST7735_OutString(msg);
 
-      int rate = 2;
       for(int j = 1; j < 40; j ++){
         ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
         ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);
         ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
         ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
 
-        p1.move(rate, rate);
-        p2.move(-rate, -rate);
-        p3.move(-rate, 0);
-        p4.move(0, -rate);
+        // Right one, Down two
+        p1.move(1, -2);         
+        // Left one, Up two
+        p2.move(-1, 2);         
+        // Left two, Down one 
+        p3.move(-2, -1);        
+        // Right two, up one
+        p4.move(2, 1);         
 
-        Clock_Delay1ms(33);              // delay 50 msec
+        Clock_Delay1ms(33);              
       }
 
     } // end of while(1)
