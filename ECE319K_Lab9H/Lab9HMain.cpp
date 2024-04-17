@@ -21,6 +21,8 @@
 #include "images/images.h"
 // My custom code 
 #include "Player.h"
+#include "MyJoystick.h"
+#include "../inc/ADC.h"   // Using these ADC functions to set up and sample
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
@@ -131,13 +133,64 @@ int main1(void){ // main1
 }
 
 
+// Test Joystick Main
+int main(void){
+
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  while(1){
+  
+    ST7735_FillScreen(0x0000);   // set screen to black
+    ST7735_SetRotation(3);
+
+    uint16_t white = ST7735_Color565(255, 255, 255);
+    uint16_t red = ST7735_Color565(255, 0, 0);
+    uint16_t green = ST7735_Color565(0, 255, 0);
+    uint16_t blue = ST7735_Color565(0, 0, 255);
+
+    Player p1(60, 60, 0, false);
+    Player p2(60, 60, 0, false);
+    //Player p2(160-8, 128-8, 0, false);
+    Player p3(160-8, 0, 0, false);  
+    Player p4(0, 128-8, 0, false);
+
+    // Set up joystick
+    Joystick j1;
+    j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
+
+
+    for(int j = 1; j < 200; j ++){
+      ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
+      ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);   // Proves that most recent write wins on the LCD (minor flicker good enough for now)
+    //   ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
+    //   ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
+
+      // Read input 
+      uint32_t x = 0;
+      uint32_t y = 0;
+      j1.ADC_InDual(ADC1, &x, &y);
+      p1.moveLinear(x, y);         
+      p2.moveLinear(x, y);
+
+
+      Clock_Delay1ms(33);              
+    }
+
+    } // end of while(1)
+}
+
+
+
 
 
 
 
 
 // use main2 to observe graphics
-int main(void){ // main2
+    int main2(void){ // main2
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -170,41 +223,61 @@ int main(void){ // main2
   // ST7735_SetCursor(2, 4);
   // ST7735_OutUDec(1234);
   while(1){
-      Clock_Delay1ms(1000);
-      ST7735_FillScreen(0x0000);   // set screen to black
+      // Clock_Delay1ms(1000);
+  
+  ST7735_FillScreen(0x0000);   // set screen to black
+  ST7735_SetRotation(3);
+  // MaxX = 160-(Size+1)
+  // MaxY = 128-(Size+1)
+  // Now trying to do stuff with the player 
+  uint16_t white = ST7735_Color565(255, 255, 255);
+  uint16_t red = ST7735_Color565(255, 0, 0);
+  uint16_t green = ST7735_Color565(0, 255, 0);
+  uint16_t blue = ST7735_Color565(0, 0, 255);
 
-      ST7735_SetRotation(3);
-      // MaxX = 160-(Size+1)
-      // MaxY = 128-(Size+1)
-      // Now trying to do stuff with the player 
-      uint16_t white = ST7735_Color565(255, 255, 255);
-      uint16_t red = ST7735_Color565(255, 0, 0);
-      uint16_t green = ST7735_Color565(0, 255, 0);
-      uint16_t blue = ST7735_Color565(0, 0, 255);
+  Player p1(60, 60, 0, false);
+  Player p2(160-8, 128-8, 0, false);
+  Player p3(160-8, 0, 0, false);  
+  Player p4(0, 128-8, 0, false);
+   // ST7735_FillScreen(0x0000);   // set screen to black
 
-      Player p1(0, 0, 0, false);
-      Player p2(160-8, 128-8, 0, false);
-      Player p3(160-8, 0, 0, false);  
-      Player p4(0, 128-8, 0, false);
 
-      char msg[10] = {'H','e','l', 'l', 'o', ' ', 'B', 'o', 'b', '\0'};
-      ST7735_SetCursor(1, 1);
-      ST7735_OutString(msg);
+      // Set up joystick
+      Joystick j1;
+      j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
 
-      for(int j = 1; j < 40; j ++){
+
+      // char msg[10] = {'H','e','l', 'l', 'o', ' ', 'B', 'o', 'b', '\0'};
+      // ST7735_SetCursor(1, 1);
+      // ST7735_OutString(msg);
+
+      for(int j = 1; j < 200; j ++){
         ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
-        ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);
-        ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
-        ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
+      //   ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);
+      //   ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
+      //   ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
 
-        // Right one, Down two
-        p1.move(1, -2);         
-        // Left one, Up two
-        p2.move(-1, 2);         
-        // Left two, Down one 
-        p3.move(-2, -1);        
-        // Right two, up one
-        p4.move(2, 1);         
+        // // Right one, Down two
+        // p1.move(1, -2);         
+        // // Left one, Up two
+        // p2.move(-1, 2);         
+        // // Left two, Down one 
+        // p3.move(-2, -1);        
+        // // Right two, up one
+        // p4.move(2, 1);         
+
+        // Read input 
+        uint32_t x = 0;
+        uint32_t y = 0;
+        j1.ADC_InDual(ADC1, &x, &y);
+        p1.moveExpo(x, y);         
+
+        // // Left one, Up two
+        // p2.move(1024, 4096);         
+        // // Left two, Down one 
+        // p3.move(0, 1024);        
+        // // Right two, up one
+        // p4.move(4096, 3072);         
 
         Clock_Delay1ms(33);              
       }
@@ -218,16 +291,48 @@ int main(void){ // main2
 
 
 
-// use main3 to test switches and LEDs
+// use main3 to test switches and LEDs (and ADC)
 int main3(void){ // main3
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
   Switch_Init(); // initialize switches
+  ST7735_InitPrintf();
   LED_Init(); // initialize LED
   while(1){
     // write code to test switches and LEDs
-   
+  
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(0x0000);   // set screen to black
+      ST7735_SetRotation(3);
+
+      // Set up joystick
+      // Joystick j1;
+      // j1.Joystick_Init();
+
+      // // Read input 
+      // uint32_t x; 
+      // uint32_t y; 
+      // j1.Joystick_In(&x, &y);
+
+      // Set up joystick
+      Joystick j1;
+      j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
+
+      // Read input 
+      uint32_t x = 0;
+      uint32_t y = 0;
+      j1.ADC_InDual(ADC1, &x, &y);
+
+      // Print to LCD
+      ST7735_SetCursor(10,10);
+      printf("%d", x);
+
+      ST7735_SetCursor(80,80);
+      printf("%d", y);
+
+
+
   }
 }
 

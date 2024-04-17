@@ -22,8 +22,10 @@ class Player{
     bool murder;        // Is the player the murderur 
 
   public: // Functions (in the order they would be called)
-    Player(uint32_t m, uint32_t b, uint32_t frame, bool murder);    // Constructor 
-    void move(int32_t joyStickX, int32_t joyStickY);              // Move based on input
+    Player(uint32_t m, uint32_t b, uint32_t frame, bool murder);      // Constructor 
+    void move(int32_t joyStickX, int32_t joyStickY);                  // Move based on input
+    void moveLinear(uint32_t joystickX, uint32_t joystickY);          // Linear movment
+    void moveExpo(uint32_t joystickX, uint32_t joystickY);            // Exponential movment? 
     uint32_t x_position(void);          // X position (getter) 
     uint32_t y_position(void);          // Y position (getter) 
 
