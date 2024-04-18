@@ -5,7 +5,7 @@
 
 
 // constructor, invoked on creation of class
-Exit::Exit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, uint32_t newPx, uint32_t newPy, uint32_t newPFrame){      // Constructor 
+Exit::Exit(int32_t TLx, int32_t TLy, int32_t BRx, int32_t BRy, uint32_t newPx, uint32_t newPy, uint32_t newPFrame){      // Constructor 
   this->TLx = TLx;
   this->TLy = TLy;
   this->BRx = BRx;
@@ -16,6 +16,22 @@ Exit::Exit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, uint32_t newPx, u
   this->newPlayerFrame = newPFrame;
 
 }
+
+// Default Constructor
+Exit::Exit(){
+
+  this->TLx = 0;
+  this->TLy = 0;
+  this->BRx = 0;
+  this->BRy = 0;
+
+  this->newPlayerX = 0;
+  this->newPlayerY = 0;
+  this->newPlayerFrame = 0;
+
+}
+
+
 
 // Sees if some X and Y are touching the wall 
 bool Exit::touching(uint32_t x, uint32_t y){

@@ -6,8 +6,8 @@
 
 class Exit{ 
   public: // Data (might update to do friend class stuff)
-    int32_t TRx;           // Top right X 
-    int32_t TRy;           // Top right Y
+    int32_t TLx;           // Top right X 
+    int32_t TLy;           // Top right Y
     int32_t BRx;           // Bottom left X 
     int32_t BRy;           // Bottom left Y
     uint32_t newPlayerX;    // New Player X 
@@ -17,6 +17,7 @@ class Exit{
 
   public: // Functions (in the order they would be called)
     Exit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, uint32_t newPx, uint32_t newPy, uint32_t newPFrame);      // Constructor 
+    Exit();
     bool touching(uint32_t x, uint32_t y);  // Based on player X and Y position determine if they're touching 
 
 };

@@ -11,6 +11,14 @@ Wall::Wall(int32_t TLx, int32_t TLy, int32_t BRx, int32_t BRy){
   this->BRy = BRy;
 }
 
+// Default Constuctor 
+Wall::Wall(){
+  this->TLx = 0;
+  this->TLy = 0;
+  this->BRx = 0;
+  this->BRy = 0;
+}
+
 // Sees if some Player X and Y are touching the wall 
 bool Wall::touching(uint32_t x, uint32_t y){
 

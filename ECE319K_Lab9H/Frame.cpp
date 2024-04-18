@@ -1,26 +1,23 @@
 
 #include <ti/devices/msp/msp.h>
 #include "Frame.h"
+#include "Exit.h"
+#include "Wall.h"
 
 
-// constructor, invoked on creation of class
-// m and b are linear calibration coefficents
-Frame::Frame(uint32_t frameNumber, uint32_t numWalls, uint32_t numExits){
+
+Frame::Frame(uint32_t frameNumber){
 
     // Which frame is this
-    this-frameNumber = frameNumber;
-
-    // Actual number of walls and exits
-    this->numWalls = numWalls+4;        // going to add 4 primiter walls
-    this->numExits = numExits;
+    this->frameNumber = frameNumber;
 
     // Index just used for adding to the array on the heap
     this->wallsIndex = 0;
     this->exitsIndex = 0;
 
-    // Now have to make the arrays on the heap
-    this->walls = new Wall[this->numWalls];
-    this->exits = new Exit[this->numExits];
+    // Init the arrays to the per-defined size 
+    Exit exits[NumberExits];            // Uses default constructor (I defined this)
+    Wall walls[NumberWalls];            // Uses defulat constructor (I defined this)
 
     // Add perimiter walls (todo)
     uint32_t width = 80;
@@ -32,31 +29,36 @@ Frame::Frame(uint32_t frameNumber, uint32_t numWalls, uint32_t numExits){
     // InitWall(10,10, 30,12); // Left
 }
 
+
+
+
 // Add a wall to the array 
 void Frame::InitWall(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy){
 
     // Simple error prevention 
-    if(this->wallsIndex >= numWalls){return;}
+    if(this->wallsIndex >= NumberWalls){return;}
 
     // Make a wall and add it to the array 
     walls[this->wallsIndex] = Wall(TRx, TRy, BRx, BRy);
-        // Not sure if this works 
-        // Not sure if a need a destucotr for wall
-        // Ask someone about this 
+        // Wall is destoryed when it exsits scope (default constructor)
+        // Using the default operation overloader for "=" for the wall class
+            // This is a shllow copy (not an issue in this case)
 
 }
 
 // Add an exit to the array 
-void Frame::InitExit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy){
+void Frame::InitExit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, uint32_t newPx, uint32_t newPy, uint32_t newPFrame){      // Constructor 
 
     // Simple error prevention 
-    if(this->exitsIndex >= numExits){return;}
+    if(this->exitsIndex >= NumberExits){return;}
 
     // Make a wall and add it to the array 
-    exits[this->exitsIndex] = Exit(TRx, TRy, BRx, BRy);
-        // Not sure if this works 
-        // Not sure if a need a destucotr for wall
-        // Ask someone about this 
+    exits[this->exitsIndex] = Exit(TRx, TRy, BRx, BRy, newPx, newPy, newPFrame);
+        // Exit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, uint32_t newPx, uint32_t newPy, uint32_t newPFrame);      // Constructor 
+        // Wall is destoryed when it exsits scope (default constructor)
+        // Using the default operation overloader for "=" for the exit class
+            // This is a shllow copy (not an issue in this case)
+
 
 }
 
