@@ -103,11 +103,11 @@ void Player::move(int32_t joyStickX, int32_t joyStickY){
 
 }
 
-void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY){
+void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, Frame& f1){
 
     //Change origin (and invert y) 
-    uint32_t x = joyStickX - 2048 ;
-    uint32_t y = joyStickY - 2048 ;
+    int32_t x = joyStickX - 2048 ;
+    int32_t y = joyStickY - 2048 ;
     y *= -1;
 
     // Max in each direction is 2048 
@@ -117,9 +117,22 @@ void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY){
     x /= 512;
     y /= 512;
 
-    // Actually change the palyer's position 
-    this->x += x;
-    this->y += y;
+    // See if touching a wall 
+    bool touching = false;
+    for(int i = 0; i <= f1.wallsIndex; i ++){
+        touching |= f1.walls[i].touching(this->x + x, this->y + y);
+    }
+
+    // If not touching, change the player's position
+    if(!touching){
+        // Actually change the palyer's position 
+        this->x += x;
+        this->y += y;
+    }
+    else{
+        // Do nothing for now
+    }
+
 
 }
 

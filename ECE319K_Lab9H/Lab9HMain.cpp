@@ -23,6 +23,8 @@
 #include "Player.h"
 #include "MyJoystick.h"
 #include "../inc/ADC.h"   // Using these ADC functions to set up and sample
+#include "Frame.h"
+#include "LCDisplay.h"
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
@@ -134,7 +136,7 @@ int main1(void){ // main1
 
 
 // Test Joystick Main
-int main(void){
+int mainJoystick(void){
 
   __disable_irq();
   PLL_Init(); // set bus speed
@@ -172,8 +174,9 @@ int main(void){
       uint32_t x = 0;
       uint32_t y = 0;
       j1.ADC_InDual(ADC1, &x, &y);
-      p1.moveLinear(x, y);         
-      p2.moveLinear(x, y);
+      // Old stuff would have to add a frame to see if its working
+      // p1.moveLinear(x, y);         
+      // p2.moveLinear(x, y);
 
 
       Clock_Delay1ms(33);              
@@ -184,7 +187,82 @@ int main(void){
 
 
 
+// Test and see if we can:
+  // 1) Create Frames (and walls)
+  // 2) Display Frames  
+int mainTestLCD1(void){
 
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  while(1){
+  
+    ST7735_FillScreen(0x0000);   // set screen to black
+    ST7735_SetRotation(3);
+    
+    // Frame's Constructor
+    // Frame(uint32_t frameNumber);        // Constructor 
+    Frame f0(0);
+    Frame f1(1);
+    f1.InitWall(10, 10, 12, 100); // Long Vertical line
+    LCD display(255, 0, 0);       // Red player
+    display.displayNewFrame(f1, f0);
+    
+    Clock_Delay1ms(2000);              
+
+  }
+}
+
+
+// Test Frames and Player Colision 
+int main(){
+
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  while(1){
+ 
+    uint16_t red = ST7735_Color565(255, 0, 0);
+    ST7735_FillScreen(0x0000);   // set screen to black
+    ST7735_SetRotation(3);
+
+    // set up joystick
+    Joystick j1;
+    j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
+  
+    // Set up Player
+    Player p1(60, 60, 0, false);
+
+    // Frame's Constructor
+    // Frame(uint32_t frameNumber);        // Constructor 
+    Frame f0(0);
+    Frame f1(1);
+    f1.InitWall(0, 0, 2, 128);      // Left Wall 
+    f1.InitWall(125, 0, 128, 128);  // Right Wall 
+    f1.InitWall(3, 0, 125, 2);      // Top Wall 
+    f1.InitWall(3, 126, 125, 128);  // Bottom Wall 
+
+    LCD display(255, 0, 0);       // Red player
+    display.displayNewFrame(f1, f0);
+
+    for(int j = 1; j < 200; j ++){
+      ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, red);
+
+      // Read input 
+      uint32_t x = 0;
+      uint32_t y = 0;
+      j1.ADC_InDual(ADC1, &x, &y);
+      p1.moveLinear(x, y, f1);         
+
+      Clock_Delay1ms(33);              
+    }
+   
+  }
+}
 
 
 

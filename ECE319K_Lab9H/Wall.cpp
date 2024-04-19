@@ -35,7 +35,8 @@ bool Wall::touching(uint32_t x, uint32_t y){
     // BUT, BRy is greater in value than TLy b/c LCD's
     // origin is top left 
 
-    int8_t playerWH = 8+(2*4); // Player Width (and Hight) + (buffer around them * 2 sides)
+    int8_t playerWH = 8; // Player Width (and Hight) + (buffer around them * 2 sides)
+      // The buffer is not current on two sides, its just on one 
 
     // Easier to check if NOT touching 
       // See if X is out of bounds
