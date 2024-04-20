@@ -153,11 +153,11 @@ int mainJoystick(void){
     uint16_t green = ST7735_Color565(0, 255, 0);
     uint16_t blue = ST7735_Color565(0, 0, 255);
 
-    Player p1(60, 60, 0, false);
-    Player p2(60, 60, 0, false);
+    Player p1(60, 60, false);
+    Player p2(60, 60, false);
     //Player p2(160-8, 128-8, 0, false);
-    Player p3(160-8, 0, 0, false);  
-    Player p4(0, 128-8, 0, false);
+    Player p3(160-8, 0, false);  
+    Player p4(0, 128-8, false);
 
     // Set up joystick
     Joystick j1;
@@ -204,11 +204,11 @@ int mainTestLCD1(void){
     
     // Frame's Constructor
     // Frame(uint32_t frameNumber);        // Constructor 
-    Frame f0(0);
-    Frame f1(1);
-    f1.InitWall(10, 10, 12, 100); // Long Vertical line
-    LCD display(255, 0, 0);       // Red player
-    display.displayNewFrame(f1, f0);
+    // Frame f0(0);
+    // Frame f1(1);
+    // f1.InitWall(10, 10, 12, 100); // Long Vertical line
+    //LCD display();       // Red player
+    //display.displayNewFrame(f1, f0);
     
     Clock_Delay1ms(2000);              
 
@@ -217,54 +217,151 @@ int mainTestLCD1(void){
 
 
 // Test Frames and Player Colision 
-int main(){
+//int mainTestLCD2(){
+//
+//  __disable_irq();
+//  PLL_Init(); // set bus speed
+//  LaunchPad_Init();
+//  ST7735_InitPrintf();
+//  ST7735_FillScreen(ST7735_BLACK);
+//  while(1){
+//
+//    uint16_t red = ST7735_Color565(255, 0, 0);
+//    ST7735_FillScreen(0x0000);   // set screen to black
+//    ST7735_SetRotation(3);
+//
+//    // set up joystick
+//    Joystick j1;
+//    j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
+//
+//    // Set up Player
+//    Player p1(60, 60, false);
+//
+//    // Frame's Constructor
+//    // Frame(uint32_t frameNumber);        // Constructor
+//    Frame f0;
+//    Frame f1;
+//    f1.InitWall(0, 0, 2, 128);      // Left Wall
+//    f1.InitWall(125, 0, 128, 128);  // Right Wall
+//    f1.InitWall(3, 0, 125, 2);      // Top Wall
+//    f1.InitWall(3, 126, 125, 128);  // Bottom Wall
+//    f1.InitExit(10,10,20,20, 30,30,0);       // Random Square
+//      // Sends player to 30,30 on F0
+//      // Not implimented yet
+//
+//    // LCD display(255, 0, 0);       // Red player
+//    // display.displayNewFrame(f1, f0);
+//
+//    for(int j = 1; j < 200; j ++){
+//      ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, red);
+//
+//      // Read input
+//      uint32_t x = 0;
+//      uint32_t y = 0;
+//      j1.ADC_InDual(ADC1, &x, &y);
+//      p1.moveLinear(x, y, 0);
+//
+//      Clock_Delay1ms(33);
+//    }
+//
+//  }
+//}
 
+
+// Test Frames Telaporation 
+Frame frames[9];          // Global Array of Frames 
+
+int main(){
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
   ST7735_InitPrintf();
   ST7735_FillScreen(ST7735_BLACK);
-  while(1){
- 
-    uint16_t red = ST7735_Color565(255, 0, 0);
-    ST7735_FillScreen(0x0000);   // set screen to black
-    ST7735_SetRotation(3);
+  ST7735_SetRotation(3);
+  uint16_t red = ST7735_Color565(255, 0, 0);
 
-    // set up joystick
-    Joystick j1;
+  // Frame 0
+  frames[0].InitWall(0, 0, 2, 128);      // Left Wall 
+  frames[0].InitWall(125, 0, 128, 128);  // Right Wall 
+  frames[0].InitWall(3, 0, 125, 2);      // Top Wall 
+  frames[0].InitWall(3, 126, 125, 128);  // Bottom Wall 
+  frames[0].InitExit(0,59,4,69, 111,60,1); // Random Square
+  // Frame 1
+  frames[1].InitWall(0, 0, 2, 128);      // Left Wall 
+  frames[1].InitWall(125, 0, 128, 128);  // Right Wall 
+  frames[1].InitWall(3, 0, 125, 2);      // Top Wall 
+  frames[1].InitWall(3, 126, 125, 128);  // Bottom Wall 
+  frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
+
+  // Set up for Game (constant stuff)
+  //##################################################  
+  //##################################################  
+  // Player 
+  // Joystick
+  // LCD 
+  // Current Frame
+  Joystick j1;
     j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
-  
-    // Set up Player
-    Player p1(60, 60, 0, false);
+  Player p1(60, 60, false);
+  LCD myDisplay;                  // Red player
+  myDisplay.displayNewScreen();   // Init screen 
+  uint32_t currentFrame = 0;
+  //##################################################  
+  //##################################################  
 
-    // Frame's Constructor
-    // Frame(uint32_t frameNumber);        // Constructor 
-    Frame f0(0);
-    Frame f1(1);
-    f1.InitWall(0, 0, 2, 128);      // Left Wall 
-    f1.InitWall(125, 0, 128, 128);  // Right Wall 
-    f1.InitWall(3, 0, 125, 2);      // Top Wall 
-    f1.InitWall(3, 126, 125, 128);  // Bottom Wall 
-
-    LCD display(255, 0, 0);       // Red player
-    display.displayNewFrame(f1, f0);
-
-    for(int j = 1; j < 200; j ++){
-      ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, red);
-
-      // Read input 
+  // Write this like G12 + Main
+  while(1){
+  // Timer G12: 
+  //##################################################  
+    // Alive
+    // Exit 
+      bool exit = false;
+      uint32_t newFrame;
+      exit = p1.touchingExit(currentFrame, &newFrame);
+        // Outputs: exit T/F, and newFrame Index
+      if(exit){
+        myDisplay.FrameShift = true;
+        myDisplay.oldFrame = currentFrame;
+        myDisplay.newFrame = newFrame;
+        currentFrame = newFrame;
+      }
+    // Read Joystick 
       uint32_t x = 0;
       uint32_t y = 0;
       j1.ADC_InDual(ADC1, &x, &y);
-      p1.moveLinear(x, y, f1);         
+    // Move as much as possible (on their current frame)
+      p1.moveLinear(x, y, currentFrame);         
+    // Shoot 
+    // Send my Info
+    // Spin until i get everyones data
+      // Update Enemies
+      // Update Shots
+    // LCD Read
+    myDisplay.DisplayReady = true;
+  //##################################################  
 
-      Clock_Delay1ms(33);              
+  // Main Thread (LCD):
+  //##################################################  
+    // Spin on ready Semaphor
+    while(!myDisplay.DisplayReady){}
+    // Frameshift? 
+    if(myDisplay.FrameShift){
+      myDisplay.frameShift(p1);     // Needs to Erase the player & enemies 
     }
+    // Display Player
+    myDisplay.displayPlayer(p1);
+    // Display Enemies
+    // Display Shots
+    // Display Hud
+    // Clear Semaphor
+    myDisplay.DisplayReady = false;
+  //##################################################  
+
+  // Just for testing:
+  Clock_Delay1ms(200);              
    
   }
 }
-
-
 
 
 // use main2 to observe graphics
@@ -313,10 +410,10 @@ int main(){
   uint16_t green = ST7735_Color565(0, 255, 0);
   uint16_t blue = ST7735_Color565(0, 0, 255);
 
-  Player p1(60, 60, 0, false);
-  Player p2(160-8, 128-8, 0, false);
-  Player p3(160-8, 0, 0, false);  
-  Player p4(0, 128-8, 0, false);
+  // Player p1(60, 60, 0, false);
+  // Player p2(160-8, 128-8, 0, false);
+  // Player p3(160-8, 0, 0, false);  
+  // Player p4(0, 128-8, 0, false);
    // ST7735_FillScreen(0x0000);   // set screen to black
 
 
@@ -330,7 +427,7 @@ int main(){
       // ST7735_OutString(msg);
 
       for(int j = 1; j < 200; j ++){
-        ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
+        // ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
       //   ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);
       //   ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
       //   ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
@@ -348,7 +445,7 @@ int main(){
         uint32_t x = 0;
         uint32_t y = 0;
         j1.ADC_InDual(ADC1, &x, &y);
-        p1.moveExpo(x, y);         
+        // p1.moveExpo(x, y);         
 
         // // Left one, Up two
         // p2.move(1024, 4096);         

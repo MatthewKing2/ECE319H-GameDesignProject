@@ -49,12 +49,12 @@ bool Exit::touching(uint32_t x, uint32_t y){
     // BUT, BRy is greater in value than TLy b/c LCD's
     // origin is top left 
 
-    int8_t playerWH = 8+4; // Player Width (and Hight) + buffer around them 
-
+    int8_t playerWH = 8;  // Player Width (and Hight) + buffer around them 
+    int8_t buffer = 4;    // Bigger hitbox around exit
     // Easier to check if NOT touching 
       // See if X is out of bounds
       // See if Y is out of bounds
-    if( ((x+playerWH < TLx)||(x > BRx))   ||   ((y+playerWH < TLy)||(y > BRy)) ){
+    if( ((x+playerWH+buffer < TLx)||(x > BRx+buffer))   ||   ((y+playerWH+buffer < TLy)||(y > BRy+buffer)) ){
       return false; // not touching
     }
     return true; // touching 

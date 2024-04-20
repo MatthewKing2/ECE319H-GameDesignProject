@@ -6,10 +6,7 @@
 
 
 
-Frame::Frame(uint32_t frameNumber){
-
-    // Which frame is this
-    this->frameNumber = frameNumber;
+Frame::Frame(){
 
     // Index just used for adding to the array on the heap
     this->wallsIndex = 0;
@@ -28,7 +25,6 @@ Frame::Frame(uint32_t frameNumber){
     // InitWall(10,13, 30,12); // Right
     // InitWall(10,10, 30,12); // Left
 }
-
 
 
 

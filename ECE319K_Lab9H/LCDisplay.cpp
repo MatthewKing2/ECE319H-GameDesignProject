@@ -3,61 +3,58 @@
 #include "LCDisplay.h"
 #include "../inc/ST7735.h"
 
+extern Frame frames[];
 
-// class LCD{ 
-//   public: // Data 
-//     bool MainMenue;     // Semaphor 
-//     bool InGame;        // Semaphor
-//     bool GameOver;      // Semaphor
-//     bool FrameShift;    // Semaphor
-//     uint32_t oldFrame;  // Frame player was on before frame shift
-//     bool DisplayReady;  // Semaphor
-
-//   private: // Private Functions (only called by this class)
-//     void displayNewFrame(Frame&);   // Refernce to frame
-//     void displayPlayer(Player&);    // Refernce to Player
-//     //void displayEnemies(&Player);
-//     //void displayShots(&Player);
-
-
-//   public: // Functions 
-//     LCD();                      // Constructor 
-//     void displayMainMenu();
-//     void displayGameOver();
-//     void displayGameState();
-
-// };
 
 // Constructor 
-LCD::LCD(uint8_t red, uint8_t green, uint8_t blue){
-    this->MainMenue = true;
-    this->InGame = false;
-    this->GameOver = false;
-    this->FrameShift = true; // b/c I want to display new map (walls and exits)
-    this->oldFrame = 0;      // What will be erased
-    this->DisplayReady = false;
-    this->PlayerColor = ST7735_Color565(red, green, blue); 
+LCD::LCD(){
+    this->FrameShift = false;   // Semphaor 
+    this->oldFrame = 0;             // Mailbox 
+    this->newFrame = 0;             // Mailbox
+    this->DisplayReady = false;  // Not ready yet
+    // Colors for stuff and things
+    this->backgroundColor = ST7735_Color565(0, 0, 0);
+    this->wallColor = ST7735_Color565(255, 255, 255);
+    this->exitColor = ST7735_Color565(0, 204, 255);
 }
 
-// When the player moves frames this must happen:
-    // 1) Old frames walls+exits errased 
-    // 2) New frames walls+exits displayed
-void LCD::displayNewFrame(Frame& newF, Frame& oldF){
 
-    uint16_t backgroundColor = ST7735_Color565(0, 0, 0);
-    uint16_t wallColor = ST7735_Color565(255, 255, 255);
-
-    // First N walls are the perimiter, dont need to display those 
-    // Erase Old
-    uint32_t n = 0;
-    for(int i = n; i < oldF.wallsIndex; i ++){
-        // TopLeftX, TopLeftY, Wideth, Height
-        ST7735_FillRect(oldF.walls[i].TLx, oldF.walls[i].TLy, (oldF.walls[i].BRx-oldF.walls[i].TLx), (oldF.walls[i].BRy-oldF.walls[i].TLy), backgroundColor);
-    }
+void LCD::displayNewScreen(){
     // Draw new
-    for(int i = n; i < newF.wallsIndex; i ++){
-        ST7735_FillRect(newF.walls[i].TLx, newF.walls[i].TLy, (newF.walls[i].BRx-newF.walls[i].TLx), (newF.walls[i].BRy-newF.walls[i].TLy), wallColor);
+    uint32_t n = 0; // first N walls are perimiater, dont show 
+    for(int i = n; i < frames[newFrame].wallsIndex; i ++){
+        ST7735_FillRect(frames[newFrame].walls[i].TLx, frames[newFrame].walls[i].TLy, (frames[newFrame].walls[i].BRx-frames[newFrame].walls[i].TLx), (frames[newFrame].walls[i].BRy-frames[newFrame].walls[i].TLy), this->wallColor);
     }
+    for(int i = 0; i < frames[newFrame].exitsIndex; i ++){
+        ST7735_FillRect(frames[newFrame].exits[i].TLx, frames[newFrame].exits[i].TLy, (frames[newFrame].exits[i].BRx-frames[newFrame].exits[i].TLx), (frames[newFrame].exits[i].BRy-frames[newFrame].exits[i].TLy), this->exitColor);
+    }
+}
+
+
+// Erase old frame, show new one (uses global Frames arr)
+void LCD::frameShift(Player& p1){
+    // Erase Old
+    uint32_t n = 0; // First N walls are the perimiter, dont need to display those 
+    for(int i = n; i < frames[oldFrame].wallsIndex; i ++){
+        ST7735_FillRect(frames[oldFrame].walls[i].TLx, frames[oldFrame].walls[i].TLy, (frames[oldFrame].walls[i].BRx-frames[oldFrame].walls[i].TLx), (frames[oldFrame].walls[i].BRy-frames[oldFrame].walls[i].TLy), this->backgroundColor);
+    }
+    for(int i = 0; i < frames[oldFrame].exitsIndex; i ++){
+        ST7735_FillRect(frames[oldFrame].exits[i].TLx, frames[oldFrame].exits[i].TLy, (frames[oldFrame].exits[i].BRx-frames[oldFrame].exits[i].TLx), (frames[oldFrame].exits[i].BRy-frames[oldFrame].exits[i].TLy), this->backgroundColor);
+    }
+    // Erase Player
+    ST7735_FillRect(p1.x, p1.y, 8, 8, this->backgroundColor);
+
+
+    // Draw new
+    for(int i = n; i < frames[newFrame].wallsIndex; i ++){
+        ST7735_FillRect(frames[newFrame].walls[i].TLx, frames[newFrame].walls[i].TLy, (frames[newFrame].walls[i].BRx-frames[newFrame].walls[i].TLx), (frames[newFrame].walls[i].BRy-frames[newFrame].walls[i].TLy), this->wallColor);
+    }
+    for(int i = 0; i < frames[newFrame].exitsIndex; i ++){
+        ST7735_FillRect(frames[newFrame].exits[i].TLx, frames[newFrame].exits[i].TLy, (frames[newFrame].exits[i].BRx-frames[newFrame].exits[i].TLx), (frames[newFrame].exits[i].BRy-frames[newFrame].exits[i].TLy), this->exitColor);
+    }
+
+    // Clear Frameshift Semaphor 
+    this->FrameShift = false;
 
 }
 
@@ -66,5 +63,5 @@ void LCD::displayNewFrame(Frame& newF, Frame& oldF){
     // TODO fix this function to draw bit map
     // Can also get rid of player color then lmao
 void LCD::displayPlayer(Player& p1){
-    ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, this->PlayerColor);
+    ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, p1.color);
 }

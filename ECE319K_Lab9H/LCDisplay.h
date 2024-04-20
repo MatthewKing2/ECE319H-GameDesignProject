@@ -4,31 +4,25 @@
 #include <stdint.h>
 #include "Frame.h"
 #include "Player.h"
-#include "../inc/ST7735.h"
 
 class LCD{ 
   public: // Data 
-    bool MainMenue;     // Semaphor 
-    bool InGame;        // Semaphor
-    bool GameOver;      // Semaphor
-    bool FrameShift;    // Semaphor
-    uint32_t oldFrame;  // Frame player was on before frame shift
+    bool FrameShift;    // Semaphor for Mailboxes
+    uint32_t oldFrame;  // Mailbox 
+    uint32_t newFrame;  // Mailbox 
     bool DisplayReady;  // Semaphor
-    uint16_t PlayerColor;
-
-  public: // Private Functions (only called by this class) (TODO: change to private)
-    void displayNewFrame(Frame&, Frame&);   // Refernce to frame
-    void displayPlayer(Player&);            // Refernce to Player
-    void displayPlayerHud(Player&);         // Draws Players HUD
-    //void displayEnemies(&Player);
-    //void displayShots(&Player);
-
+    uint16_t backgroundColor;
+    uint16_t wallColor; 
+    uint16_t exitColor;
 
   public: // Functions 
-    LCD(uint8_t, uint8_t, uint8_t);  // Constructor (takes player RGB)
-    void displayMainMenu();
-    void displayGameOver();
-    void displayGameState();
+    LCD();                // Constructor 
+    void displayNewScreen();   // Initalize screen 
+    void frameShift(Player&);         // Erases old frame, shows new
+    void displayPlayer(Player&);    
+    // void displayPlayerHud(Player&); // Draws Players HUD
+    //void displayEnemies(Enemy&);
+    //void displayShots(Shots&);
 
 };
 #endif
