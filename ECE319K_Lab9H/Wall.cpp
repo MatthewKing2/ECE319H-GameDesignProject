@@ -19,13 +19,13 @@ Wall::Wall(){
   this->BRy = 0;
 }
 
-// Sees if some Player X and Y are touching the wall 
-bool Wall::touching(uint32_t x, uint32_t y){
+// Sees if some X and Y are touching the Exit 
+bool Wall::touching(int32_t x, int32_t y, uint32_t h, uint32_t w){
 
     // Casting to singed just to be safe 
     // (values should always be pos just dont want the compares to mess up)
-    x = (int32_t)x;
-    y = (int32_t)y;
+    // x = (int32_t)x;
+    // y = (int32_t)y;
 
     // Note: 
     // TLx, TLy -*
@@ -35,13 +35,11 @@ bool Wall::touching(uint32_t x, uint32_t y){
     // BUT, BRy is greater in value than TLy b/c LCD's
     // origin is top left 
 
-    int8_t playerWH = 8; // Player Width (and Hight) + (buffer around them * 2 sides)
-      // The buffer is not current on two sides, its just on one 
-
     // Easier to check if NOT touching 
       // See if X is out of bounds
       // See if Y is out of bounds
-    if( ((x+playerWH < TLx)||(x > BRx))   ||   ((y+playerWH < TLy)||(y > BRy)) ){
+      // Note: -1 has to do with pixles vs coordinates
+    if( ((x+w-1 < TLx)||(x > BRx))   ||   ((y+h-1 < TLy)||(y > BRy)) ){
       return false; // not touching
     }
     return true; // touching 

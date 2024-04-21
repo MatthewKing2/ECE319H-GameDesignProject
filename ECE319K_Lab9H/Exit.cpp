@@ -33,13 +33,13 @@ Exit::Exit(){
 
 
 
-// Sees if some X and Y are touching the wall 
-bool Exit::touching(uint32_t x, uint32_t y){
+// Sees if some X and Y are touching the Exit 
+bool Exit::touching(int32_t x, int32_t y, uint32_t h, uint32_t w){
 
     // Casting to singed just to be safe 
     // (values should always be pos just dont want the compares to mess up)
-    x = (int32_t)x;
-    y = (int32_t)y;
+    // x = (int32_t)x;
+    // y = (int32_t)y;
 
     // Note: 
     // TLx, TLy -*
@@ -49,12 +49,11 @@ bool Exit::touching(uint32_t x, uint32_t y){
     // BUT, BRy is greater in value than TLy b/c LCD's
     // origin is top left 
 
-    int8_t playerWH = 8;  // Player Width (and Hight) + buffer around them 
-    int8_t buffer = 4;    // Bigger hitbox around exit
     // Easier to check if NOT touching 
       // See if X is out of bounds
       // See if Y is out of bounds
-    if( ((x+playerWH+buffer < TLx)||(x > BRx+buffer))   ||   ((y+playerWH+buffer < TLy)||(y > BRy+buffer)) ){
+      // Note: -1 has to do with pixles vs coordinates
+    if( ((x+w-1 < TLx)||(x > BRx))   ||   ((y+h-1 < TLy)||(y > BRy)) ){
       return false; // not touching
     }
     return true; // touching 

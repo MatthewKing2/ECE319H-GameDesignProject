@@ -7,19 +7,22 @@
 #include "Player.h"
 #include "../inc/ST7735.h"
 #include <math.h>
-#define playerSize 8 
+#define playerSize 16 
 #define PI 3.14159265
 extern Frame frames[];
 
 
 // constructor, invoked on creation of class
-Player::Player(uint32_t x, uint32_t y, bool murder){
+Player::Player(int32_t x, int32_t y, const uint16_t* image, bool murder){
   // write this, runs on creation
   this->x = x;
   this->y = y;
+  this->prevX = 0;
+  this->prevX = 0;
   this->h = playerSize;
   this->w = playerSize;
   this->color = ST7735_Color565(255, 0, 0);
+  this->image = image;
   this->murder = false;
   this->alive = true;
 }
@@ -33,13 +36,9 @@ bool Player::touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex){
     // See if player is touching 
     bool touching = false;
     uint32_t touchingIndex = 0; 
-    // for(int i = 0; i < frames[currFrameIndex].exitsIndex; i ++){
-    //     touching |= frames[currFrameIndex].exits[i].touching(this->x, this->y);
-    //     touchingIndex = i;
-    // }
 
     while((touchingIndex <= frames[currFrameIndex].exitsIndex) && !touching){
-        touching = frames[currFrameIndex].exits[touchingIndex].touching(this->x, this->y);
+        touching = frames[currFrameIndex].exits[touchingIndex].touching(this->x-4, this->y-4, 16, 16);
         touchingIndex ++;
     }
 
@@ -47,6 +46,8 @@ bool Player::touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex){
     touchingIndex --;   // offset the ++ after the correct index was found
     if(touching){
         *newFrameIndex = frames[currFrameIndex].exits[touchingIndex].newPlayerFrame;
+        this->prevX = this->x;
+        this->prevY = this->y;
         this->x = frames[currFrameIndex].exits[touchingIndex].newPlayerX;
         this->y = frames[currFrameIndex].exits[touchingIndex].newPlayerY;
         return true;
@@ -137,24 +138,6 @@ void Player::move(int32_t joyStickX, int32_t joyStickY){
 }
 
 
-// void Player::touchingWall(uint32_t deltaX, uint32_t deltaY, bool* touchingX, bool* touchingY){
-//     // Wall Stuff
-//         // See if touching a wall 
-//         // Seperate into X and Y detection
-//     bool touchingX = false;
-//     for(int i = 0; i <= f1.wallsIndex; i ++){
-//         touchingX |= f1.walls[i].touching(this->x + deltaX, this->y);
-//     }
-
-//     bool touchingY = false;
-//     for(int i = 0; i <= f1.wallsIndex; i ++){
-//         touchingY |= f1.walls[i].touching(this->x, this->y+deltaY);
-//     }
-// }
-
-
-
-
 
 void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFrameIndex){
 
@@ -176,12 +159,12 @@ void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFra
         // Seperate into X and Y detection
     bool touchingX = false;
     for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
-        touchingX |= frames[currFrameIndex].walls[i].touching(this->x + x, this->y);
+        touchingX |= frames[currFrameIndex].walls[i].touching(this->x + x -4, this->y-4, 16, 16);
     }
 
     bool touchingY = false;
     for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
-        touchingY |= frames[currFrameIndex].walls[i].touching(this->x, this->y + y);
+        touchingY |= frames[currFrameIndex].walls[i].touching(this->x -4, this->y + y -4, 16, 16);
     }
     // If not touching, change the palyers position
     if(!touchingX){

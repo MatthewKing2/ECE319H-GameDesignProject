@@ -18,7 +18,8 @@ class Exit{
   public: // Functions (in the order they would be called)
     Exit(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, uint32_t newPx, uint32_t newPy, uint32_t newPFrame);      // Constructor 
     Exit();
-    bool touching(uint32_t x, uint32_t y);  // Based on player X and Y position determine if they're touching 
+    bool touching(int32_t x, int32_t y, uint32_t h, uint32_t w);  // Is some artibrary rectangle touching or intersection this exit? 
+      // X, Y is top left corner
 
 };
 

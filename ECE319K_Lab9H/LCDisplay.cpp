@@ -18,7 +18,8 @@ LCD::LCD(){
     this->exitColor = ST7735_Color565(0, 204, 255);
 }
 
-
+// Displays the Map Border (contstant across all frames)
+// Exits are left open
 void LCD::displayNewScreen(){
     // Draw new
     uint32_t n = 0; // first N walls are perimiater, dont show 
@@ -42,7 +43,7 @@ void LCD::frameShift(Player& p1){
         ST7735_FillRect(frames[oldFrame].exits[i].TLx, frames[oldFrame].exits[i].TLy, (frames[oldFrame].exits[i].BRx-frames[oldFrame].exits[i].TLx), (frames[oldFrame].exits[i].BRy-frames[oldFrame].exits[i].TLy), this->backgroundColor);
     }
     // Erase Player
-    ST7735_FillRect(p1.x, p1.y, 8, 8, this->backgroundColor);
+    ST7735_FillRect(p1.prevX, p1.prevY, 8, 8, this->backgroundColor);
 
 
     // Draw new
@@ -63,5 +64,7 @@ void LCD::frameShift(Player& p1){
     // TODO fix this function to draw bit map
     // Can also get rid of player color then lmao
 void LCD::displayPlayer(Player& p1){
+    ST7735_DrawBitmap(p1.x-4, p1.y+11, p1.image, p1.w, p1.h);
     ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, p1.color);
+
 }

@@ -14,15 +14,18 @@
 
 class Player{ 
   public: // Data 
-    uint32_t x;         // Player X and Y position 
-    uint32_t y;
+    int32_t x;         // Player X and Y position 
+    int32_t y;
+    int32_t prevX;         // Player X and Y position 
+    int32_t prevY;
     uint16_t h,w;       // Player Width and Hight 
     uint32_t color;     // Player color
+    const uint16_t* image;    // What player looks like
     bool alive;         // Is player alive
     bool murder;        // Is the player the murderur 
 
   public: // Functions (in the order they would be called)
-    Player(uint32_t m, uint32_t b, bool murder);          // Constructor 
+    Player(int32_t x, int32_t y, const uint16_t* image, bool murder);          // Constructor 
     // Movment Functions
       void move(int32_t joyStickX, int32_t joyStickY);
       void moveLinear(uint32_t joystickX, uint32_t joystickY, uint32_t frameIndex); 
@@ -30,7 +33,7 @@ class Player{
       void errorCorrect();    // Makes any out of range X and Y in range
     // Colision Functions
       bool touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex); // Player touching exit 
-      void touchingWall(uint32_t x, uint32_t y, bool* touchingX, bool* touchingY);
+      void touchingWall(int32_t x, int32_t y, bool* touchingX, bool* touchingY);
     // Getters
     uint32_t x_position(void);          // X position (getter) 
     uint32_t y_position(void);          // Y position (getter) 

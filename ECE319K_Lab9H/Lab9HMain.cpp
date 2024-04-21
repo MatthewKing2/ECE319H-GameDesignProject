@@ -153,11 +153,11 @@ int mainJoystick(void){
     uint16_t green = ST7735_Color565(0, 255, 0);
     uint16_t blue = ST7735_Color565(0, 0, 255);
 
-    Player p1(60, 60, false);
-    Player p2(60, 60, false);
-    //Player p2(160-8, 128-8, 0, false);
-    Player p3(160-8, 0, false);  
-    Player p4(0, 128-8, false);
+    // Player p1(60, 60, false);
+    // Player p2(60, 60, false);
+    // //Player p2(160-8, 128-8, 0, false);
+    // Player p3(160-8, 0, false);  
+    // Player p4(0, 128-8, false);
 
     // Set up joystick
     Joystick j1;
@@ -165,8 +165,8 @@ int mainJoystick(void){
 
 
     for(int j = 1; j < 200; j ++){
-      ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
-      ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);   // Proves that most recent write wins on the LCD (minor flicker good enough for now)
+      // ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, white);
+      // ST7735_FillRect(p2.x_position(), p2.y_position(), 8, 8, red);   // Proves that most recent write wins on the LCD (minor flicker good enough for now)
     //   ST7735_FillRect(p3.x_position(), p3.y_position(), 8, 8, green);
     //   ST7735_FillRect(p4.x_position(), p4.y_position(), 8, 8, blue);
 
@@ -288,7 +288,7 @@ int main(){
   frames[0].InitExit(0,59,4,69, 111,60,1); // Random Square
   // Frame 1
   frames[1].InitWall(0, 0, 2, 128);      // Left Wall 
-  frames[1].InitWall(125, 0, 128, 128);  // Right Wall 
+  frames[1].InitWall(126, 0, 128, 128);  // Right Wall 
   frames[1].InitWall(3, 0, 125, 2);      // Top Wall 
   frames[1].InitWall(3, 126, 125, 128);  // Bottom Wall 
   frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
@@ -302,7 +302,7 @@ int main(){
   // Current Frame
   Joystick j1;
     j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
-  Player p1(60, 60, false);
+  Player p1(60, 60, redPlayer8x8, false);
   LCD myDisplay;                  // Red player
   myDisplay.displayNewScreen();   // Init screen 
   uint32_t currentFrame = 0;
