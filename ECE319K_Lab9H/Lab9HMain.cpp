@@ -271,15 +271,7 @@ int mainTestLCD1(void){
 // Test Frames Telaporation 
 Frame frames[9];          // Global Array of Frames 
 
-int main(){
-  __disable_irq();
-  PLL_Init(); // set bus speed
-  LaunchPad_Init();
-  ST7735_InitPrintf();
-  ST7735_FillScreen(ST7735_BLACK);
-  ST7735_SetRotation(3);
-  uint16_t red = ST7735_Color565(255, 0, 0);
-
+int oldWalls(){
   // Frame 0
   frames[0].InitWall(0, 0, 2, 128);      // Left Wall 
   frames[0].InitWall(125, 0, 128, 128);  // Right Wall 
@@ -291,6 +283,28 @@ int main(){
   frames[1].InitWall(126, 0, 128, 128);  // Right Wall 
   frames[1].InitWall(3, 0, 125, 2);      // Top Wall 
   frames[1].InitWall(3, 126, 125, 128);  // Bottom Wall 
+  frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
+}
+int main(){
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  ST7735_SetRotation(3);
+  uint16_t red = ST7735_Color565(255, 0, 0);
+
+  // Frame 0
+  frames[0].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[0].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[0].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[0].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[0].InitExit(0,59,4,69, 111,60,1); // Random Square
+  // Frame 1
+  frames[1].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[1].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[1].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[1].InitWall(4, 124, 125, 128);  // Bottom Wall 
   frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
 
   // Set up for Game (constant stuff)
@@ -358,7 +372,7 @@ int main(){
   //##################################################  
 
   // Just for testing:
-  Clock_Delay1ms(200);              
+  Clock_Delay1ms(33);              
    
   }
 }

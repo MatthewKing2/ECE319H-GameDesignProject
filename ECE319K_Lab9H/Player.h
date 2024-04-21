@@ -33,7 +33,12 @@ class Player{
       void errorCorrect();    // Makes any out of range X and Y in range
     // Colision Functions
       bool touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex); // Player touching exit 
-      void touchingWall(int32_t x, int32_t y, bool* touchingX, bool* touchingY);
+      void distToClosestWallX(int32_t x, int32_t y, uint32_t frameIndex); 
+      void distToClosestWallY(int32_t x, int32_t y, uint32_t frameIndex); 
+      void maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex);
+      void reallyBadMaxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex);
+
+
     // Getters
     uint32_t x_position(void);          // X position (getter) 
     uint32_t y_position(void);          // Y position (getter) 

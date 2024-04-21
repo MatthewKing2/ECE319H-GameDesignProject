@@ -138,6 +138,85 @@ void Player::move(int32_t joyStickX, int32_t joyStickY){
 }
 
 
+void Player::reallyBadMaxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex){
+
+    int32_t Xover = 0;
+    int32_t Yover = 0;
+
+
+    int32_t maxX = 0;
+    int32_t maxY = 0;
+
+    // Negative X 
+    if(deltaX < 0){
+        bool touchingX = false;
+        while((maxX >= deltaX)&&(!touchingX)){
+            for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+                touchingX = frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
+            }
+            maxX --;
+        }
+        maxX ++;
+    }
+    // Positive X
+    else{
+        bool touchingX = false;
+        while((maxX <= deltaX)&&(!touchingX)){
+            for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+                touchingX = frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
+            }
+            maxX ++;
+        }
+        maxX --;
+    }
+
+    // Negative Y
+    if(deltaY < 0){
+        bool touchingY = false;
+        while((maxY >= deltaY)&&(!touchingY)){
+            for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+                touchingY = frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
+            }
+            maxY --;
+        }
+        maxY ++;
+    }
+    // Positive X
+    else{
+        bool touchingY = false;
+        while((maxY <= deltaY)&&(!touchingY)){
+            for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+                touchingY = frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
+            }
+            maxY ++;
+        }
+        maxY --;
+    }
+
+
+    this->x += maxX; 
+    this->y += maxY; 
+
+
+}
+
+
+// Depending on the walls in the current frame, and the player's desired movement
+// Move them the maximum amount (until touching wall)
+void Player::maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex){
+
+    int32_t Xover = 0;
+    int32_t Yover = 0;
+
+    for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+        frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
+    }
+
+    this->x += (deltaX + Xover);
+    this->y += (deltaY + Yover);
+
+}
+
 
 void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFrameIndex){
 
@@ -157,22 +236,24 @@ void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFra
     // Wall Stuff
         // See if touching a wall 
         // Seperate into X and Y detection
-    bool touchingX = false;
-    for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
-        touchingX |= frames[currFrameIndex].walls[i].touching(this->x + x -4, this->y-4, 16, 16);
-    }
+    // bool touchingX = false;
+    // for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+    //     touchingX |= frames[currFrameIndex].walls[i].touching(this->x + x -4, this->y-4, 16, 16);
+    // }
 
-    bool touchingY = false;
-    for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
-        touchingY |= frames[currFrameIndex].walls[i].touching(this->x -4, this->y + y -4, 16, 16);
-    }
-    // If not touching, change the palyers position
-    if(!touchingX){
-        this->x += x;
-    }
-    if(!touchingY){
-        this->y += y;
-    }
+    // bool touchingY = false;
+    // for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
+    //     touchingY |= frames[currFrameIndex].walls[i].touching(this->x -4, this->y + y -4, 16, 16);
+    // }
+    // // If not touching, change the palyers position
+    // if(!touchingX){
+    //     this->x += x;
+    // }
+    // if(!touchingY){
+    //     this->y += y;
+    // }
+
+    maxMove(x, y, currFrameIndex);
   
 
 }
