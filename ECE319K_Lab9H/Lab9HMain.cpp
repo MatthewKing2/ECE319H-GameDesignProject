@@ -299,6 +299,7 @@ int main(){
   frames[0].InitWall(124, 0, 128, 128);  // Right Wall 
   frames[0].InitWall(4, 0, 125, 4);      // Top Wall 
   frames[0].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[0].InitWall(20, 20, 40, 24);  // Bottom Wall 
   frames[0].InitExit(0,59,4,69, 111,60,1); // Random Square
   // Frame 1
   frames[1].InitWall(0, 0, 4, 128);      // Left Wall 

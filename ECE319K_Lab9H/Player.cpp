@@ -143,7 +143,6 @@ void Player::reallyBadMaxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrame
     int32_t Xover = 0;
     int32_t Yover = 0;
 
-
     int32_t maxX = 0;
     int32_t maxY = 0;
 
@@ -212,8 +211,31 @@ void Player::maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex){
         frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
     }
 
-    this->x += (deltaX + Xover);
-    this->y += (deltaY + Yover);
+    // B/C Xover & Yover are simply how far to get out of shape, when added with deltaX,Y value may be greater than 4
+    // Therefore, need to round down to 4 (but mod 5 is only for positive numbers), therefore this solution:
+    bool outOfRangeX = false;
+    bool outOfRangeY = false;
+
+    // Change X
+    if( (deltaX + Xover) < -4 ){
+        this->x -= 4; 
+        outOfRangeX = true;
+    }else if((deltaX + Xover) > 4){
+        this->x += 4;
+        outOfRangeX = true;
+    }
+    if(!outOfRangeX){this->x += (deltaX + Xover);}
+
+    // Change Y
+    if( (deltaY + Yover) < -4 ){
+        this->y -= 4; 
+        outOfRangeY = false;
+    }else if((deltaY + Yover) > 4){
+        this->y += 4;
+        outOfRangeY = false;
+    }
+    if(!outOfRangeY){this->y += (deltaY + Yover);}
+
 
 }
 
