@@ -7,9 +7,11 @@
 #include "Player.h"
 #include "../inc/ST7735.h"
 #include <math.h>
+#include "LaserShot.h"
 #define playerSize 16 
 #define PI 3.14159265
 extern Frame frames[];
+extern Shot shots[];
 
 
 // constructor, invoked on creation of class
@@ -25,6 +27,17 @@ Player::Player(int32_t x, int32_t y, const uint16_t* image, bool murder){
   this->image = image;
   this->murder = false;
   this->alive = true;
+}
+
+// Goes through the awrray of shots and returns true if a valid enemy shot is touching the player
+bool Player::touchingLaser(uint32_t currFrameIndex){
+    bool touching = false;
+    for(int i = 1; i < 4; i++){ // Index 0 is my shot, index 1,2,3 are enemy shots
+        if(shots[i].valid){ // Dont care about old shots (invalid ones)
+            touching |= shots[i].touching(this->x,this->y,8,8);
+        }
+    }
+    return touching;
 }
 
 

@@ -37,6 +37,7 @@ class Player{
       void distToClosestWallY(int32_t x, int32_t y, uint32_t frameIndex); 
       void maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex);
       void reallyBadMaxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex);
+      bool touchingLaser(uint32_t currFrameIndex);
 
 
     // Getters

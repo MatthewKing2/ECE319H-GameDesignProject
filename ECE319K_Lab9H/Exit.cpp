@@ -36,11 +36,6 @@ Exit::Exit(){
 // Sees if some X and Y are touching the Exit 
 bool Exit::touching(int32_t x, int32_t y, uint32_t h, uint32_t w){
 
-    // Casting to singed just to be safe 
-    // (values should always be pos just dont want the compares to mess up)
-    // x = (int32_t)x;
-    // y = (int32_t)y;
-
     // Note: 
     // TLx, TLy -*
     //  |        | 

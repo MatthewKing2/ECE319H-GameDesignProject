@@ -18,12 +18,37 @@ Wall::Wall(){
   this->BRy = 0;
 }
 
+
+bool Wall::fastTouching(int32_t x, int32_t y, int32_t h, int32_t w){
+
+    // Note: 
+    // TLx, TLy -*
+    //  |        | 
+    //  |        |
+    //  * --- BRx, BRy 
+    // BUT, BRy is greater in value than TLy b/c LCD's
+    // origin is top left 
+
+    // Easier to check if NOT touching 
+      // See if X is out of bounds
+      // See if Y is out of bounds
+    if( ((x+w-1 < TLx)||(x > BRx))   ||   ((y+h-1 < TLy)||(y > BRy)) ){
+      return false;
+    }
+    return true;
+}
+
+
+
+
+
 // Sees if some Rectange is touching this Wall 
 // Returns
   // True if touching
   // how far into the wall (x and y) you are
   // Note: does not change values if not touching 
-bool Wall::touching(int32_t x, int32_t y, uint32_t h, uint32_t w, int32_t* Xover, int32_t* Yover){
+  // NOTE: X AND Y ARE ASSUMED TO BE THE TOP LEFT CORDINATES OF THE RECTANGE 
+bool Wall::touching(int32_t x, int32_t y, int32_t h, int32_t w, int32_t* Xover, int32_t* Yover){
 
     // Note: 
     // TLx, TLy -*

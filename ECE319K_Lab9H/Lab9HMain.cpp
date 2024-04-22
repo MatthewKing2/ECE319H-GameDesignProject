@@ -25,6 +25,7 @@
 #include "../inc/ADC.h"   // Using these ADC functions to set up and sample
 #include "Frame.h"
 #include "LCDisplay.h"
+#include "LaserShot.h"
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
@@ -216,60 +217,10 @@ int mainTestLCD1(void){
 }
 
 
-// Test Frames and Player Colision 
-//int mainTestLCD2(){
-//
-//  __disable_irq();
-//  PLL_Init(); // set bus speed
-//  LaunchPad_Init();
-//  ST7735_InitPrintf();
-//  ST7735_FillScreen(ST7735_BLACK);
-//  while(1){
-//
-//    uint16_t red = ST7735_Color565(255, 0, 0);
-//    ST7735_FillScreen(0x0000);   // set screen to black
-//    ST7735_SetRotation(3);
-//
-//    // set up joystick
-//    Joystick j1;
-//    j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
-//
-//    // Set up Player
-//    Player p1(60, 60, false);
-//
-//    // Frame's Constructor
-//    // Frame(uint32_t frameNumber);        // Constructor
-//    Frame f0;
-//    Frame f1;
-//    f1.InitWall(0, 0, 2, 128);      // Left Wall
-//    f1.InitWall(125, 0, 128, 128);  // Right Wall
-//    f1.InitWall(3, 0, 125, 2);      // Top Wall
-//    f1.InitWall(3, 126, 125, 128);  // Bottom Wall
-//    f1.InitExit(10,10,20,20, 30,30,0);       // Random Square
-//      // Sends player to 30,30 on F0
-//      // Not implimented yet
-//
-//    // LCD display(255, 0, 0);       // Red player
-//    // display.displayNewFrame(f1, f0);
-//
-//    for(int j = 1; j < 200; j ++){
-//      ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, red);
-//
-//      // Read input
-//      uint32_t x = 0;
-//      uint32_t y = 0;
-//      j1.ADC_InDual(ADC1, &x, &y);
-//      p1.moveLinear(x, y, 0);
-//
-//      Clock_Delay1ms(33);
-//    }
-//
-//  }
-//}
-
 
 // Test Frames Telaporation 
 Frame frames[9];          // Global Array of Frames 
+Shot shots[4];            // Global Array of Shots
 
 int oldWalls(){
   // Frame 0
@@ -329,6 +280,9 @@ int main(){
   // Timer G12: 
   //##################################################  
     // Alive
+    bool alive = !(p1.touchingLaser(currentFrame)); 
+    // Clear Shots (MUST be after alive check)
+      myDisplay.clearShots(currentFrame);
     // Exit 
       bool exit = false;
       uint32_t newFrame;
@@ -347,6 +301,8 @@ int main(){
     // Move as much as possible (on their current frame)
       p1.moveLinear(x, y, currentFrame);         
     // Shoot 
+      //shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
+      shots[1].generate(60,60, 0,1);
     // Send my Info
     // Spin until i get everyones data
       // Update Enemies
@@ -367,6 +323,7 @@ int main(){
     myDisplay.displayPlayer(p1);
     // Display Enemies
     // Display Shots
+    myDisplay.displayShots(currentFrame);
     // Display Hud
     // Clear Semaphor
     myDisplay.DisplayReady = false;
@@ -377,6 +334,57 @@ int main(){
    
   }
 }
+
+
+int mainTestingShot(void){
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  ST7735_SetRotation(3);
+  uint16_t red = ST7735_Color565(255, 0, 0);
+
+  // Frame 0
+  frames[0].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[0].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[0].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[0].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[0].InitWall(20, 20, 40, 24);  // Bottom Wall 
+  frames[0].InitExit(0,59,4,69, 111,60,1); // Random Square
+  // Frame 1
+  frames[1].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[1].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[1].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[1].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
+
+  // Set up for Game (constant stuff)
+  //##################################################  
+  //##################################################  
+  // Player 
+  // Joystick
+  // LCD 
+  // Current Frame
+  LCD myDisplay;                  // Red player
+  myDisplay.displayNewScreen();   // Init screen 
+  uint32_t currentFrame = 0;
+  //##################################################  
+  //##################################################  
+
+  // Testing the shot
+  shots[0].generate(60,60, 3,0);  // Up in f0
+  shots[1].generate(20,60, 0,0);  // Up in f0
+  myDisplay.displayShots(currentFrame);
+   
+
+
+
+  return 0;
+}
+
+
+
 
 
 // use main2 to observe graphics
@@ -591,5 +599,76 @@ int main5(void){ // final main
        // clear semaphore
        // update ST7735R
     // check for end game or level switch
+  }
+}
+
+
+
+
+// Global Flags used for game flow 
+bool MainMenu = true;
+bool inGame = false;
+bool GameOver = true;
+bool master = true;   // True means send start of game msg
+
+// ALL ST7735 OUTPUT MUST OCCUR IN MAIN
+int mainOurGame(void){ // final main
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  // Game Set Up:
+  // ####################################################
+  // This is their stuff, we will change this: 
+    // Sensor.Init(); // PB18 = ADC1 channel 5, slidepot
+    // Switch_Init(); // initialize switches
+    // LED_Init();    // initialize LED
+    // Sound_Init();  // initialize sound
+    // TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
+    // initialize all data structures
+  // ####################################################
+
+  __enable_irq(); // Need this to enable UART interupts (so can send, recive start of game msg)
+
+  // Forever Loop 
+  while(1){
+    // ###########################################################
+    if(MainMenu){
+      //1) Display Main Menu
+      //2) If master, send start of game msg when button is pressed
+      while(MainMenu){
+        // Read button input 
+        if(master){
+          // If button = start button
+            // send start of game msg 
+            // wait 3 ms (for other microcontrolls)
+            TimerG12_IntArm(80000000/30,2); // Start interupts @30Hz
+            MainMenu = false;
+            inGame = true; 
+        }
+        else{
+          // Read uart input 
+          // If msg == start of game msg 
+            TimerG12_IntArm(80000000/30,2); // Start interupts @30Hz
+            MainMenu = false;
+            inGame = true;
+        }
+      } 
+    }
+    // ###########################################################
+    else if(inGame){
+      // Game Loop 
+      // This contains logic that determins when game is over and sets the "GameOver" flag
+    }
+    // ###########################################################
+    else if(GameOver){
+      // Display end of game screen 
+      // Function that intakes:
+        // referce to player 
+        // refernce to enemys 1,2,3
+      // Functions uses their "score" attribute to determine who won
+    }
+    // ###########################################################
   }
 }

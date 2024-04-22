@@ -2,8 +2,10 @@
 #include <ti/devices/msp/msp.h>
 #include "LCDisplay.h"
 #include "../inc/ST7735.h"
+#include "LaserShot.h"
 
 extern Frame frames[];
+extern Shot shots[];
 
 
 // Constructor 
@@ -16,6 +18,8 @@ LCD::LCD(){
     this->backgroundColor = ST7735_Color565(0, 0, 0);
     this->wallColor = ST7735_Color565(255, 255, 255);
     this->exitColor = ST7735_Color565(0, 204, 255);
+    this->shotColor = ST7735_Color565(255, 0, 0);
+
 }
 
 // Displays the Map Border (contstant across all frames)
@@ -65,6 +69,29 @@ void LCD::frameShift(Player& p1){
     // Can also get rid of player color then lmao
 void LCD::displayPlayer(Player& p1){
     ST7735_DrawBitmap(p1.x-4, p1.y+11, p1.image, p1.w, p1.h);
-    ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, p1.color);
+    //ST7735_FillRect(p1.x_position(), p1.y_position(), 8, 8, p1.color);
 
+}
+
+
+
+
+void LCD::displayShots(uint32_t currentFrame){
+    for(int i = 0; i < 4; i ++){
+        if((shots[i].frame == currentFrame) && (shots[i].valid == true)){
+            ST7735_FillRect(shots[i].TLx, shots[i].TLy, (shots[i].BRx - shots[i].TLx), (shots[i].BRy - shots[i].TLy), this->shotColor);
+        }
+    }
+}
+
+
+
+
+void LCD::clearShots(uint32_t currentFrame){
+    for(int i = 0; i < 4; i ++){
+        if((shots[i].frame == currentFrame) && (shots[i].valid == true)){
+            ST7735_FillRect(shots[i].TLx, shots[i].TLy, (shots[i].BRx - shots[i].TLx), (shots[i].BRy - shots[i].TLy), this->backgroundColor);
+            shots[i].valid = false; // Clear valid semaphore (shot has already been shot)
+        }
+    }
 }

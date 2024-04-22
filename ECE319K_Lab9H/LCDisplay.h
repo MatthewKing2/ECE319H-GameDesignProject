@@ -14,6 +14,7 @@ class LCD{
     uint16_t backgroundColor;
     uint16_t wallColor; 
     uint16_t exitColor;
+    uint16_t shotColor;
 
   public: // Functions 
     LCD();                // Constructor 
@@ -22,7 +23,10 @@ class LCD{
     void displayPlayer(Player&);    
     // void displayPlayerHud(Player&); // Draws Players HUD
     //void displayEnemies(Enemy&);
-    //void displayShots(Shots&);
+    void displayShots(uint32_t currentFrame);
+    void clearShots(uint32_t currentFrame);
+      // Might have a small issue if someone shoots right when they frame shift 
+      // nvm i shoot after i move
 
 };
 #endif
