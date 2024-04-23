@@ -258,20 +258,61 @@ int main(){
   frames[0].InitWall(124, 0, 128, 128);  // Right Wall 
   frames[0].InitWall(4, 0, 125, 4);      // Top Wall 
   frames[0].InitWall(4, 124, 125, 128);  // Bottom Wall 
-  frames[0].InitWall(20, 20, 40, 24);  // Bottom Wall 
-  frames[0].InitExit(0,59,4,69, 111,60,1); // Random Square
+  frames[0].InitWall(20, 20, 90, 24);     // Top  
+  frames[0].InitWall(90, 70, 94, 100);     // Right Side   
+  frames[0].InitExit(0,59,4,69, 111,60,1); // Left Exit 
+  frames[0].InitExit(59,124,69,128, 59,15,5); // Bottom Exit 
   // Frame 1
   frames[1].InitWall(0, 0, 4, 128);      // Left Wall 
   frames[1].InitWall(124, 0, 128, 128);  // Right Wall 
   frames[1].InitWall(4, 0, 125, 4);      // Top Wall 
   frames[1].InitWall(4, 124, 125, 128);  // Bottom Wall 
-  frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
+  frames[1].InitWall(30, 70, 90, 74);      // Middle  
+  frames[1].InitWall(30, 20, 34, 100);  // Left side 
+  frames[1].InitExit(124,59,128,69, 15,60,0); // Right Exit 
+  frames[1].InitExit(0,59,4,69, 111,60,2); // Left Exit Square
+  // Frame 2
+  frames[2].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[2].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[2].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[2].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[2].InitWall(30, 20, 34, 100);  // Left side 
+  frames[2].InitWall(30, 96, 70, 100);  // Bottom side 
+  frames[2].InitExit(124,59,128,69, 15,60,1); // Right Exit 
+  frames[2].InitExit(59,124,69,128, 59,15,3); // Bottom Exit 
+  // Frame 3
+  frames[3].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[3].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[3].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[3].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[3].InitWall(20, 30, 90, 34);     // Top  
+  frames[3].InitWall(30, 50, 34, 100);  // Left side 
+  frames[3].InitExit(124,59,128,69, 15,60,4); // Right Exit 
+  frames[3].InitExit(59,0,69,4, 59,113,2); // Top Exit 
+  // Frame 4
+  frames[4].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[4].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[4].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[4].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[4].InitWall(20, 30, 90, 34);     // Top  
+  frames[4].InitWall(70, 30, 74, 90);  // Middel wall 
+  frames[4].InitExit(124,59,128,69, 15,60,5); // Right Exit 
+  frames[4].InitExit(0,59,4,69, 111,60,3); // Left Exit Square
+  // Frame 5
+  frames[5].InitWall(0, 0, 4, 128);      // Left Wall 
+  frames[5].InitWall(124, 0, 128, 128);  // Right Wall 
+  frames[5].InitWall(4, 0, 125, 4);      // Top Wall 
+  frames[5].InitWall(4, 124, 125, 128);  // Bottom Wall 
+  frames[5].InitWall(20, 100, 90, 104);     // Top  
+  frames[5].InitWall(86, 30, 90, 104);     // Right Side   
+  frames[5].InitExit(59,0,69,4, 59,113,0); // Top Exit 
+  frames[5].InitExit(0,59,4,69, 111,60,4); // Left Exit Square
 
   // Testing Enemies 
-  enemys[0].assignSprite(baseEnemy8x8);
-  enemys[1].assignSprite(baseEnemy8x8);
-  enemys[0].updatePosition(40,40,0);
-  enemys[1].updatePosition(80,40,1);
+  // enemys[0].assignSprite(baseEnemy8x8);
+  // enemys[1].assignSprite(baseEnemy8x8);
+  // enemys[0].updatePosition(40,40,0);
+  // enemys[1].updatePosition(80,40,1);
 
 
   // Set up for Game (constant stuff)
@@ -279,15 +320,18 @@ int main(){
   //##################################################  
   UART2_Init();
   UART1_Init();
-  // Player 
+  // Buttons
+  Buttons b1;
+    b1.Buttons_Init();
   // Joystick
-  // LCD 
-  // Current Frame
   Joystick j1;
     j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
+  // Player 
   Player p1(60, 60, redPlayer8x8, false);
+  // LCD 
   LCD myDisplay;                  // Red player
   myDisplay.displayNewScreen();   // Init screen 
+  // Current Frame
   uint32_t currentFrame = 0;
   //##################################################  
   //##################################################  
@@ -320,8 +364,26 @@ int main(){
     // Move as much as possible (on their current frame)
       p1.moveLinear(x, y, currentFrame);         
     // Shoot 
-    // Read buttons 
-
+      // Read buttons 
+      // void Buttons::Buttons_In(uint32_t* up, uint32_t* down, uint32_t* left, uint32_t* right, uint32_t* dash){
+      uint32_t up;
+      uint32_t down;
+      uint32_t left;
+      uint32_t right;
+      uint32_t dash;
+      b1.Buttons_In(&up, &down, &left, &right, &dash);
+      if(down && !up && !left && !right){
+        shots[0].generate(p1.x,p1.y, 1,currentFrame); // Shot upwards @ player x, y
+      }
+      else if(left && !down && !up && !right){
+        shots[0].generate(p1.x,p1.y, 2,currentFrame); // Shot upwards @ player x, y
+      }
+      else if(right && !up && !down && !left){
+        shots[0].generate(p1.x,p1.y, 3,currentFrame); // Shot upwards @ player x, y
+      }
+      else if(up && !down && !right && !left){
+        shots[0].generate(p1.x,p1.y, 0,currentFrame); // Shot upwards @ player x, y
+      }
       // shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
       // shots[1].generate(60,60, 0,1);
     // Send my Info

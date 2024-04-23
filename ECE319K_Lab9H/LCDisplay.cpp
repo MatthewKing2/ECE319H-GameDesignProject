@@ -18,7 +18,8 @@ LCD::LCD(){
     // Colors for stuff and things
     this->backgroundColor = ST7735_Color565(0, 0, 0);
     this->wallColor = ST7735_Color565(255, 255, 255);
-    this->exitColor = ST7735_Color565(0, 204, 255);
+    //this->exitColor = ST7735_Color565(0, 204, 255);
+    this->exitColor = ST7735_Color565(0, 0, 255);
     this->shotColor = ST7735_Color565(255, 0, 0);
 
 }

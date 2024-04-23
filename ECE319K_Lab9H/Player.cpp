@@ -242,10 +242,10 @@ void Player::maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex){
     // Change Y
     if( (deltaY + Yover) < -4 ){
         this->y -= 4; 
-        outOfRangeY = false;
+        outOfRangeY = true;
     }else if((deltaY + Yover) > 4){
         this->y += 4;
-        outOfRangeY = false;
+        outOfRangeY = true;
     }
     if(!outOfRangeY){this->y += (deltaY + Yover);}
 
