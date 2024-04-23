@@ -27,11 +27,17 @@
 #include "LCDisplay.h"
 #include "LaserShot.h"
 #include "Enemy.h"
+#include "../inc/FIFO2.cpp"   // Not good practice, but make file is not finding the code (should prbably copy over to this directory)
+//#include "GameFifo.h"
+#include "GameUart.h"
+#include "MyButtons.h"
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
 
 
+
+// Queue FIFO;
 
 // ****note to ECE319K students****
 // the data sheet says the ADC does not work when clock is 80 MHz
@@ -271,6 +277,8 @@ int main(){
   // Set up for Game (constant stuff)
   //##################################################  
   //##################################################  
+  UART2_Init();
+  UART1_Init();
   // Player 
   // Joystick
   // LCD 
@@ -283,6 +291,8 @@ int main(){
   uint32_t currentFrame = 0;
   //##################################################  
   //##################################################  
+
+  __enable_irq();
 
   // Write this like G12 + Main
   while(1){
@@ -310,10 +320,46 @@ int main(){
     // Move as much as possible (on their current frame)
       p1.moveLinear(x, y, currentFrame);         
     // Shoot 
+    // Read buttons 
+
       // shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
       // shots[1].generate(60,60, 0,1);
     // Send my Info
-    // Spin until i get everyones data
+      //char UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y);
+        UART1_Transmit(1, currentFrame, alive, false, false, 0, p1.x, p1.y);
+    // Read data out of SW Fifo 
+      // #####################################
+          // char data1 = UART2_InChar();
+          // char data2 = UART2_InChar();
+          // char data3 = UART2_InChar();
+          // char data4 = UART2_InChar();
+          // bool newData = false;
+          // char data1;
+          // char data2;
+          // char data3;
+          // char data4;
+          // //UART2_InData(&data1, &data2, &data3, &data4);
+          // data1 = UART2_InChar();
+          // uint32_t stopper = 0;
+          // while((data1 != ((1<<7)|1)) && stopper < 4){
+          //   //UART2_InData(&data1, &data2, &data3, &data4);
+          //   data1 = UART2_InChar();
+          //   stopper ++;
+          // }
+          // if(stopper != 4){
+          //   newData = true;  
+          // }else{
+          //   data2 = UART2_InChar();
+          //   data3 = UART2_InChar();
+          //   data4 = UART2_InChar();
+          // }
+          // if(newData){
+          //   while(1){
+          //     // spin
+          //   }
+          // }
+          //UART_Translate(data1, data2, data3, data4);
+      // #####################################
       // Update Enemies
         // Have to do some logic to determine if an enemy left my frame 
         // and then have to erase them
