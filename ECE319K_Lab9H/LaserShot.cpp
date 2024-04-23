@@ -56,11 +56,6 @@ bool Shot::touching(int32_t x, int32_t y, uint32_t h, uint32_t w){
 }
 
 
-// Clean up any valid shots in your frame 
-void Shot::cleanUp(uint32_t currFrame){
-
-
-}
 
 // Given the shot direction, and Player X,Y generate a new shot (until it hits a wall)
 // Direction

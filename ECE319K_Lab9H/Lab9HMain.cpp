@@ -26,6 +26,7 @@
 #include "Frame.h"
 #include "LCDisplay.h"
 #include "LaserShot.h"
+#include "Enemy.h"
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
@@ -221,6 +222,7 @@ int mainTestLCD1(void){
 // Test Frames Telaporation 
 Frame frames[9];          // Global Array of Frames 
 Shot shots[4];            // Global Array of Shots
+Enemy enemys[3];          // Global Array of Enemys
 
 int oldWalls(){
   // Frame 0
@@ -259,6 +261,13 @@ int main(){
   frames[1].InitWall(4, 124, 125, 128);  // Bottom Wall 
   frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
 
+  // Testing Enemies 
+  enemys[0].assignSprite(baseEnemy8x8);
+  enemys[1].assignSprite(baseEnemy8x8);
+  enemys[0].updatePosition(40,40,0);
+  enemys[1].updatePosition(80,40,1);
+
+
   // Set up for Game (constant stuff)
   //##################################################  
   //##################################################  
@@ -280,7 +289,7 @@ int main(){
   // Timer G12: 
   //##################################################  
     // Alive
-    bool alive = !(p1.touchingLaser(currentFrame)); 
+      bool alive = !(p1.touchingLaser(currentFrame)); 
     // Clear Shots (MUST be after alive check)
       myDisplay.clearShots(currentFrame);
     // Exit 
@@ -301,11 +310,13 @@ int main(){
     // Move as much as possible (on their current frame)
       p1.moveLinear(x, y, currentFrame);         
     // Shoot 
-      //shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
-      shots[1].generate(60,60, 0,1);
+      // shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
+      // shots[1].generate(60,60, 0,1);
     // Send my Info
     // Spin until i get everyones data
       // Update Enemies
+        // Have to do some logic to determine if an enemy left my frame 
+        // and then have to erase them
       // Update Shots
     // LCD Read
     myDisplay.DisplayReady = true;
@@ -322,6 +333,7 @@ int main(){
     // Display Player
     myDisplay.displayPlayer(p1);
     // Display Enemies
+    myDisplay.displayEnemies(currentFrame);
     // Display Shots
     myDisplay.displayShots(currentFrame);
     // Display Hud

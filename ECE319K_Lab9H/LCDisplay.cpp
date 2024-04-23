@@ -3,10 +3,11 @@
 #include "LCDisplay.h"
 #include "../inc/ST7735.h"
 #include "LaserShot.h"
+#include "Enemy.h"
 
 extern Frame frames[];
 extern Shot shots[];
-
+extern Enemy enemys[];          
 
 // Constructor 
 LCD::LCD(){
@@ -48,6 +49,14 @@ void LCD::frameShift(Player& p1){
     }
     // Erase Player
     ST7735_FillRect(p1.prevX, p1.prevY, 8, 8, this->backgroundColor);
+    
+    // NOTE: have to erase all of the enemies from the old frame 
+        // Just look @ old frame and any enemies in that frame, draw a black box there
+    for(int i = 0; i < 3; i ++){
+        if(enemys[i].frame == this->oldFrame){
+            ST7735_FillRect(enemys[i].x, enemys[i].y, 8, 8, this->backgroundColor);
+        }
+    }
 
 
     // Draw new
@@ -94,4 +103,20 @@ void LCD::clearShots(uint32_t currentFrame){
             shots[i].valid = false; // Clear valid semaphore (shot has already been shot)
         }
     }
+}
+
+
+// Displays Enemey in this frame;
+void LCD::displayEnemies(uint32_t currFrame){
+    for(int i = 0; i < 3; i ++){
+        if(enemys[i].frame == currFrame){
+            ST7735_DrawBitmap(enemys[i].x-4, enemys[i].y+11, enemys[i].image, enemys[i].w, enemys[i].h);
+        }
+    }
+}
+
+
+// Used when an ememy leaves my frame (logic in main)
+void LCD::clearSpecificEnemy(Enemy& e1){
+    ST7735_FillRect(e1.prevX, e1.prevY, 8, 8, this->backgroundColor);
 }

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "Frame.h"
 #include "Player.h"
+#include "Enemy.h"
 
 class LCD{ 
   public: // Data 
@@ -17,12 +18,13 @@ class LCD{
     uint16_t shotColor;
 
   public: // Functions 
-    LCD();                // Constructor 
-    void displayNewScreen();   // Initalize screen 
-    void frameShift(Player&);         // Erases old frame, shows new
-    void displayPlayer(Player&);    
-    // void displayPlayerHud(Player&); // Draws Players HUD
-    //void displayEnemies(Enemy&);
+    LCD();                                    // Constructor 
+    void displayNewScreen();                  // Initalize screen 
+    void frameShift(Player&);                 // Erases old frame, shows new
+    void displayPlayer(Player&);              // Displays Player
+    // void displayPlayerHud(Player&);        // Draws Players HUD
+    void displayEnemies(uint32_t currFrame);  // Displays Enemey in this frame;
+    void clearSpecificEnemy(Enemy& e1);          // Used when an ememy leaves my frame (logic in main)
     void displayShots(uint32_t currentFrame);
     void clearShots(uint32_t currentFrame);
       // Might have a small issue if someone shoots right when they frame shift 
