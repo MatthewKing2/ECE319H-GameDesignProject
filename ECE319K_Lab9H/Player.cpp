@@ -259,6 +259,7 @@ void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFra
     int32_t x = joyStickX - 2048 ;
     int32_t y = joyStickY - 2048 ;
     y *= -1;
+    x *= -1;    // x is also inverted apparently
 
     // Max in each direction is 2048 
     // Want 4 pixles of movement ==> 2048 / (2048/4)
