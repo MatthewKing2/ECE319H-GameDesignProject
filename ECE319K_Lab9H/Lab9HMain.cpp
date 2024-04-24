@@ -442,11 +442,11 @@ int main(){
   // Receiver (gets uart data to generate enemies)
   uint32_t packets = 0;
   Receiver r1;
+  // Current Frame
+  uint32_t currentFrame = 3;
   // LCD 
   LCD myDisplay;                  // Red player
-  myDisplay.displayNewScreen();   // Init screen 
-  // Current Frame
-  uint32_t currentFrame = 0;
+  myDisplay.displayNewScreen(currentFrame);   // Init screen to inital frame
   //##################################################  
   //##################################################  
 
@@ -454,18 +454,31 @@ int main(){
 
   // Write this like G12 + Main
   bool alive = true;
+  uint32_t health = 30;
   while(1){
   // Timer G12: 
   //##################################################  
     // Alive
-      alive &= !(p1.touchingLaser(currentFrame)); 
-      // For testing, when die, game ends 
-      if(!alive){
-        uint32_t counter = 0;
-        while(1){
-          counter ++;
+      // alive &= !(p1.touchingLaser(currentFrame)); 
+      // // For testing, when die, game ends 
+      // if(!alive){
+      //   uint32_t counter = 0;
+      //   while(1){
+      //     counter ++;
+      //   }
+      // }
+      if(p1.touchingLaser(currentFrame)){
+        if(health == 1){
+          alive = false;
+          Clock_Delay1ms(2000);              
+          ST7735_FillScreen(ST7735_BLACK);
+          while(1){
+            // spin
+          }
+        }else{
+          health --;
         }
-      }
+      } 
     // Clear Shots (MUST be after alive check)
       myDisplay.clearShots(currentFrame);
     // Exit 
@@ -623,9 +636,9 @@ int mainTestingShot(void){
   // Joystick
   // LCD 
   // Current Frame
-  LCD myDisplay;                  // Red player
-  myDisplay.displayNewScreen();   // Init screen 
   uint32_t currentFrame = 0;
+  LCD myDisplay;                  // Red player
+  myDisplay.displayNewScreen(currentFrame);   // Init screen 
   //##################################################  
   //##################################################  
 

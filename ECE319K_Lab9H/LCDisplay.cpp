@@ -26,14 +26,14 @@ LCD::LCD(){
 
 // Displays the Map Border (contstant across all frames)
 // Exits are left open
-void LCD::displayNewScreen(){
+void LCD::displayNewScreen(uint32_t currFrame){
     // Draw new
     uint32_t n = 0; // first N walls are perimiater, dont show 
-    for(int i = n; i < frames[newFrame].wallsIndex; i ++){
-        ST7735_FillRect(frames[newFrame].walls[i].TLx, frames[newFrame].walls[i].TLy, (frames[newFrame].walls[i].BRx-frames[newFrame].walls[i].TLx), (frames[newFrame].walls[i].BRy-frames[newFrame].walls[i].TLy), this->wallColor);
+    for(int i = n; i < frames[currFrame].wallsIndex; i ++){
+        ST7735_FillRect(frames[currFrame].walls[i].TLx, frames[currFrame].walls[i].TLy, (frames[currFrame].walls[i].BRx-frames[currFrame].walls[i].TLx), (frames[currFrame].walls[i].BRy-frames[currFrame].walls[i].TLy), this->wallColor);
     }
-    for(int i = 0; i < frames[newFrame].exitsIndex; i ++){
-        ST7735_FillRect(frames[newFrame].exits[i].TLx, frames[newFrame].exits[i].TLy, (frames[newFrame].exits[i].BRx-frames[newFrame].exits[i].TLx), (frames[newFrame].exits[i].BRy-frames[newFrame].exits[i].TLy), this->exitColor);
+    for(int i = 0; i < frames[currFrame].exitsIndex; i ++){
+        ST7735_FillRect(frames[currFrame].exits[i].TLx, frames[currFrame].exits[i].TLy, (frames[currFrame].exits[i].BRx-frames[currFrame].exits[i].TLx), (frames[currFrame].exits[i].BRy-frames[currFrame].exits[i].TLy), this->exitColor);
     }
 }
 

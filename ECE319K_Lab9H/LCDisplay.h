@@ -19,7 +19,7 @@ class LCD{
 
   public: // Functions 
     LCD();                                    // Constructor 
-    void displayNewScreen();                  // Initalize screen 
+    void displayNewScreen(uint32_t currFrame);// Initalize screen 
     void frameShift(Player&);                 // Erases old frame, shows new
     void displayPlayer(Player&);              // Displays Player
     // void displayPlayerHud(Player&);        // Draws Players HUD
