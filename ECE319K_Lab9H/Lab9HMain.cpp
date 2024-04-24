@@ -237,6 +237,8 @@ int main(){
 
   __enable_irq();
 
+  uint32_t packets = 0;
+  Receiver r1;
   while(1){
     // Send my Info
       //char UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y);
@@ -247,36 +249,51 @@ int main(){
 
     // Read data out of SW Fifo 
       // #####################################
-          char data1 = UART2_InChar();
-          char data2 = UART2_InChar();
-          char data3 = UART2_InChar();
-          char data4 = UART2_InChar();
-          // bool newData = false;
+          // char data1 = UART2_InChar();
+          // char data2 = UART2_InChar();
+          // char data3 = UART2_InChar();
+          // char data4 = UART2_InChar();
+
+      // Code caches any start of frame:
           // char data1;
           // char data2;
           // char data3;
           // char data4;
           // //UART2_InData(&data1, &data2, &data3, &data4);
           // data1 = UART2_InChar();
-          // uint32_t stopper = 0;
-          // while((data1 != ((1<<7)|1)) && stopper < 4){
+          // while((data1 & (1<<7)) != (1<<7)){
           //   //UART2_InData(&data1, &data2, &data3, &data4);
           //   data1 = UART2_InChar();
-          //   stopper ++;
           // }
-          // if(stopper != 4){
-          //   newData = true;  
-          // }else{
-          //   data2 = UART2_InChar();
-          //   data3 = UART2_InChar();
-          //   data4 = UART2_InChar();
-          // }
-          // if(newData){
+          // data2 = UART2_InChar();
+          // data3 = UART2_InChar();
+          // data4 = UART2_InChar();
           //   while(1){
-          //     // spin
+          //     // spin forever
           //   }
-          // }
-          // UART_Translate(data1, data2, data3, data4);
+
+          
+          bool newData = false;
+          char data1;
+          char data2;
+          char data3;
+          char data4;
+          //UART2_InData(&data1, &data2, &data3, &data4);
+          data1 = UART2_InChar();
+          uint32_t stopper = 0;
+          while((data1 != ((1<<7)|1)) && stopper < 4){
+            //UART2_InData(&data1, &data2, &data3, &data4);
+            data1 = UART2_InChar();
+            stopper ++;
+          }
+          if(stopper != 4){
+            newData = true;  
+            data2 = UART2_InChar();
+            data3 = UART2_InChar();
+            data4 = UART2_InChar();
+            packets ++;
+            r1.receiverTranslate(data1, data2, data3, data4);
+          }
       // #####################################
       // Update Enemies
         // Have to do some logic to determine if an enemy left my frame 
@@ -537,10 +554,7 @@ int mainTestingFrames(){
       // shots[1].generate(60,60, 0,1);
     // Send my Info
       //char UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y);
-        //UART1_Transmit(1, currentFrame, alive, false, false, 0, p1.x, p1.y);
-        uint8_t data = 0x5A;
-        data = (char) data;
-        Uart1_Transmit_1Byte(data);
+        UART1_Transmit(1, currentFrame, alive, false, false, 0, p1.x, p1.y);
     // Read data out of SW Fifo 
       // #####################################
           // char data1 = UART2_InChar();

@@ -158,6 +158,27 @@
 
 
 
+class Receiver{ 
+  public: // Data 
+
+    uint32_t msg;         
+    uint32_t frame;
+    bool alive;
+    bool pickup;
+    bool shot;
+    uint32_t shotDirection;
+    int32_t x;
+    int32_t y;
+
+  public: // Functions (in the order they would be called)
+    Receiver(); // Default COnstructr
+    void receiverTranslate(char one, char two, char three, char four);
+
+};
+
+
+
+
 
 
 // Translate UART msgs
