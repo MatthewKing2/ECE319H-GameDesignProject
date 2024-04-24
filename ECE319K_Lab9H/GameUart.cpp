@@ -27,7 +27,7 @@ void UART2_Init(void){
   UART2->GPRCM.RSTCTL = 0xB1000003;               // reset UART0
   UART2->GPRCM.PWREN = 0x26000001;                // activate UART0
   Clock_Delay(24);                                // time for uart to activate
-  IOMUX->SECCFG.PINCM[PB17INDEX] = 0x00000082;    // Regular Output PB17 = Tx
+  //IOMUX->SECCFG.PINCM[PB17INDEX] = 0x00000082;    // Regular Output PB17 = Tx
   IOMUX->SECCFG.PINCM[PA24INDEX] = 0x00040082;    // Regular Input PA24 = Rx
   UART2->CLKSEL = 0x08;               // bus clock
   UART2->CLKDIV = 0x00;               // no divide
@@ -80,8 +80,8 @@ void UART1_Init(void){
   UART1->GPRCM.RSTCTL = 0xB1000003;
   UART1->GPRCM.PWREN = 0x26000001;
   Clock_Delay(24); // time for uart to power up
-  IOMUX->SECCFG.PINCM[PA10INDEX]  = 0x00000082;
-  IOMUX->SECCFG.PINCM[PA11INDEX]  = 0x00040082;
+  IOMUX->SECCFG.PINCM[PA8INDEX]  = 0x00000082;
+  //IOMUX->SECCFG.PINCM[PA11INDEX]  = 0x00040082; // WRONG PIN NUMBER HERE
   UART1->CLKSEL = 0x08; // bus clock
   UART1->CLKDIV = 0x00; // no divide
   UART1->CTL0 &= ~0x01; // disable UART0
@@ -195,6 +195,15 @@ void UART1_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool 
 
 
 
+void Uart1_Transmit_1Byte(char data){
+    UART1->TXDATA = data;
+    UART1->TXDATA = data;
+    UART1->TXDATA = data;
+    UART1->TXDATA = data;
+
+}
+
+
 extern "C" void UART2_IRQHandler(void);
 void UART2_IRQHandler(void){ 
     int volatile status;
@@ -205,8 +214,8 @@ void UART2_IRQHandler(void){
     // 2) HeartBeat
     // GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
     // 3) Add ByteS to Q (if valid data)
-    //while((UART2->STAT & (1<<2)) == 0){  // see if RXFE is 0 (valid data)
-    while (!((UART2->STAT / 4) % 2)) {
+    while((UART2->STAT & (1<<2)) == 0){  // see if RXFE is 0 (valid data)
+    //while (!((UART2->STAT / 4) % 2)) {
       uint8_t data = UART2->RXDATA;
       data = (char) data;
       bool haveSpace = FIFO2.Put(data);

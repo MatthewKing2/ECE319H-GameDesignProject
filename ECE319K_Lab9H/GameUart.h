@@ -182,7 +182,7 @@ void UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool 
 
 
 void UART2_InData(char* one, char* two, char* three, char* four);
-
+void Uart1_Transmit_1Byte(char data);
 
 
 
