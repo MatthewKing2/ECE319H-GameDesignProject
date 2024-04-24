@@ -110,6 +110,9 @@ void LCD::clearShots(uint32_t currentFrame){
 // Displays Enemey in this frame;
 void LCD::displayEnemies(uint32_t currFrame){
     for(int i = 0; i < 3; i ++){
+        if(enemys[i].changedFrames){
+            ST7735_FillRect(enemys[i].prevX, enemys[i].prevY, 8, 8, this->backgroundColor);
+        }
         if(enemys[i].frame == currFrame){
             ST7735_DrawBitmap(enemys[i].x-4, enemys[i].y+11, enemys[i].image, enemys[i].w, enemys[i].h);
         }

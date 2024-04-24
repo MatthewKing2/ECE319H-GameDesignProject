@@ -224,7 +224,7 @@ int mainTestLCD1(void){
 }
 
 
-int main(){
+int mainReceiver(){
 
   __disable_irq();
   PLL_Init(); // set bus speed
@@ -246,12 +246,6 @@ int main(){
         // uint8_t data = 0x5A;
         // data = (char) data;
         // Uart1_Transmit_1Byte(data);
-
-    // Read data out of SW Fifo 
-      // #####################################
-          // char data1 = UART2_InChar();
-          // char data2 = UART2_InChar();
-          // char data3 = UART2_InChar();
           // char data4 = UART2_InChar();
 
       // Code caches any start of frame:
@@ -272,7 +266,7 @@ int main(){
           //     // spin forever
           //   }
 
-          
+      // Code that only updates receiver when valid packet
           bool newData = false;
           char data1;
           char data2;
@@ -293,6 +287,8 @@ int main(){
             data4 = UART2_InChar();
             packets ++;
             r1.receiverTranslate(data1, data2, data3, data4);
+            // Toggle Pin (minimally Intrusive)
+            GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
           }
       // #####################################
       // Update Enemies
@@ -328,54 +324,10 @@ int mainTransmiter(){
   __enable_irq();
 
   while(1){
-    // Send my Info
-      //char UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y);
-        //UART1_Transmit(1, currentFrame, alive, false, false, 0, p1.x, p1.y);
-        uint8_t data = 0x5A;
-        data = (char) data;
-        Uart1_Transmit_1Byte(data);
-
-    // Read data out of SW Fifo 
-      // #####################################
-          // char data1 = UART2_InChar();
-          // char data2 = UART2_InChar();
-          // char data3 = UART2_InChar();
-          // char data4 = UART2_InChar();
-          // bool newData = false;
-          // char data1;
-          // char data2;
-          // char data3;
-          // char data4;
-          // //UART2_InData(&data1, &data2, &data3, &data4);
-          // data1 = UART2_InChar();
-          // uint32_t stopper = 0;
-          // while((data1 != ((1<<7)|1)) && stopper < 4){
-          //   //UART2_InData(&data1, &data2, &data3, &data4);
-          //   data1 = UART2_InChar();
-          //   stopper ++;
-          // }
-          // if(stopper != 4){
-          //   newData = true;  
-          // }else{
-          //   data2 = UART2_InChar();
-          //   data3 = UART2_InChar();
-          //   data4 = UART2_InChar();
-          // }
-          // if(newData){
-          //   while(1){
-          //     // spin
-          //   }
-          // }
-          // UART_Translate(data1, data2, data3, data4);
-      // #####################################
-      // Update Enemies
-        // Have to do some logic to determine if an enemy left my frame 
-        // and then have to erase them
-      // Update Shots
-    // LCD Read
-
-  // Just for testing:
-  Clock_Delay1ms(33);              
+    uint8_t data = 0x5A;
+    data = (char) data;
+    Uart1_Transmit_1Byte(data);
+    Clock_Delay1ms(33);              
 
   }
 
@@ -410,7 +362,7 @@ int oldWalls(){
   frames[1].InitWall(3, 126, 125, 128);  // Bottom Wall 
   frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
 }
-int mainTestingFrames(){
+int main(){
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -474,13 +426,6 @@ int mainTestingFrames(){
   frames[5].InitExit(59,0,69,4, 59,113,0); // Top Exit 
   frames[5].InitExit(0,59,4,69, 111,60,4); // Left Exit Square
 
-  // Testing Enemies 
-  // enemys[0].assignSprite(baseEnemy8x8);
-  // enemys[1].assignSprite(baseEnemy8x8);
-  // enemys[0].updatePosition(40,40,0);
-  // enemys[1].updatePosition(80,40,1);
-
-
   // Set up for Game (constant stuff)
   //##################################################  
   //##################################################  
@@ -494,6 +439,9 @@ int mainTestingFrames(){
     j1.ADC_InitDual(ADC1, 1, 2, ADCVREF_VDDA);
   // Player 
   Player p1(60, 60, redPlayer8x8, false);
+  // Receiver (gets uart data to generate enemies)
+  uint32_t packets = 0;
+  Receiver r1;
   // LCD 
   LCD myDisplay;                  // Red player
   myDisplay.displayNewScreen();   // Init screen 
@@ -505,11 +453,19 @@ int mainTestingFrames(){
   __enable_irq();
 
   // Write this like G12 + Main
+  bool alive = true;
   while(1){
   // Timer G12: 
   //##################################################  
     // Alive
-      bool alive = !(p1.touchingLaser(currentFrame)); 
+      alive &= !(p1.touchingLaser(currentFrame)); 
+      // For testing, when die, game ends 
+      if(!alive){
+        uint32_t counter = 0;
+        while(1){
+          counter ++;
+        }
+      }
     // Clear Shots (MUST be after alive check)
       myDisplay.clearShots(currentFrame);
     // Exit 
@@ -538,60 +494,75 @@ int mainTestingFrames(){
       uint32_t right;
       uint32_t dash;
       b1.Buttons_In(&up, &down, &left, &right, &dash);
+      bool shot = false;
+      uint32_t shotDirection = 0; // Arbirary default 
       if(down && !up && !left && !right){
         shots[0].generate(p1.x,p1.y, 1,currentFrame); // Shot upwards @ player x, y
+        shot = true;
+        shotDirection = 1;
       }
       else if(left && !down && !up && !right){
         shots[0].generate(p1.x,p1.y, 2,currentFrame); // Shot upwards @ player x, y
+        shot = true;
+        shotDirection = 2;
       }
       else if(right && !up && !down && !left){
         shots[0].generate(p1.x,p1.y, 3,currentFrame); // Shot upwards @ player x, y
+        shot = true;
+        shotDirection = 3;
       }
       else if(up && !down && !right && !left){
         shots[0].generate(p1.x,p1.y, 0,currentFrame); // Shot upwards @ player x, y
+        shot = true;
+        shotDirection = 0;
       }
       // shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
       // shots[1].generate(60,60, 0,1);
     // Send my Info
       //char UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y);
-        UART1_Transmit(1, currentFrame, alive, false, false, 0, p1.x, p1.y);
+      UART1_Transmit(1, currentFrame, alive, false, shot, shotDirection, p1.x, p1.y);
     // Read data out of SW Fifo 
       // #####################################
-          // char data1 = UART2_InChar();
-          // char data2 = UART2_InChar();
-          // char data3 = UART2_InChar();
-          // char data4 = UART2_InChar();
-          // bool newData = false;
-          // char data1;
-          // char data2;
-          // char data3;
-          // char data4;
-          // //UART2_InData(&data1, &data2, &data3, &data4);
-          // data1 = UART2_InChar();
-          // uint32_t stopper = 0;
-          // while((data1 != ((1<<7)|1)) && stopper < 4){
-          //   //UART2_InData(&data1, &data2, &data3, &data4);
-          //   data1 = UART2_InChar();
-          //   stopper ++;
-          // }
-          // if(stopper != 4){
-          //   newData = true;  
-          // }else{
-          //   data2 = UART2_InChar();
-          //   data3 = UART2_InChar();
-          //   data4 = UART2_InChar();
-          // }
-          // if(newData){
-          //   while(1){
-          //     // spin
-          //   }
-          // }
-          // UART_Translate(data1, data2, data3, data4);
+      bool newData = false;
+      char data1;
+      char data2;
+      char data3;
+      char data4;
+      //UART2_InData(&data1, &data2, &data3, &data4);
+      data1 = UART2_InChar();
+      uint32_t stopper = 0;
+      while((data1 != ((1<<7)|1)) && stopper < 4){
+        //UART2_InData(&data1, &data2, &data3, &data4);
+        data1 = UART2_InChar();
+        stopper ++;
+      }
+      if(stopper != 4){
+        newData = true;  
+        data2 = UART2_InChar();
+        data3 = UART2_InChar();
+        data4 = UART2_InChar();
+        packets ++;
+        r1.receiverTranslate(data1, data2, data3, data4);
+        // Toggle Pin (minimally Intrusive)
+        GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+      }
       // #####################################
       // Update Enemies
+      enemys[0].updatePosition(r1.x, r1.y, r1.frame, r1.alive);
+      // Check for Invalid data
+      // if(packets > 100 && (enemys[0].y < 10)){
+      //   uint32_t dataError = 0;
+      //   while(1){
+      //     dataError ++;
+      //   }
+      // }
         // Have to do some logic to determine if an enemy left my frame 
         // and then have to erase them
       // Update Shots
+        // Currently does not work
+      if(r1.shot){
+        shots[1].generate(enemys[0].x, enemys[0].y, r1.shotDirection, enemys[0].frame);
+      }
     // LCD Read
     myDisplay.DisplayReady = true;
   //##################################################  

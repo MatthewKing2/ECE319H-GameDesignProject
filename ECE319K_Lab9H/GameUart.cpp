@@ -27,10 +27,10 @@ Receiver::Receiver(){
 
 void Receiver::receiverTranslate(char one, char two, char three, char four){
     this->msg = one&0x7F;
-    this->frame = (two&(3<<5))>>5;  // Need to shift it back b/c its not at the start of byte like direction
-    this->alive = two&(1<<4);
-    this->pickup = two&(1<<3);
-    this->shot = two&(1<<2);
+    this->frame = (two&(7<<4))>>4;  // Need to shift it back b/c its not at the start of byte like direction
+    this->alive = (two&(1<<3))>>3;
+    this->pickup = 0;               // Not implimited rn
+    this->shot = (two&(1<<2))>>2;
     this->shotDirection = two&(3);  // 2 bits ==> &3 
     this->x = three&0x7F;
     this->y = four&0x7F;
@@ -277,7 +277,7 @@ void UART1_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool 
 
     // Send start of packet + special msg
     UART1->TXDATA = (1<<7)|(msg&0x7F);
-    UART1->TXDATA = (frame<<5)|(alive<<4)|(pickup<<3)|(shot<<2)|(shotDirection);
+    UART1->TXDATA = ((frame<<4)|(alive<<3)|(shot<<2)|(shotDirection))&0x7F; 
     UART1->TXDATA = x&0x7F;
     UART1->TXDATA = y&0x7F;
 
