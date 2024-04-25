@@ -351,9 +351,7 @@ int mainTransmiter(){
 
 
 // Main to test menue and some sound 
-int main(){
-  bool s = false;
-  bool* spanish = &s;
+int mainSound(){
 
   Sound_Init();
   Sound_Stop();
@@ -362,6 +360,9 @@ int main(){
   DAC5_Init();     // DAC initialization <--------------- DO THIS STUPID 
   ST7735_InitPrintf();
   __enable_irq();
+
+  bool s = false;
+  bool* spanish = &s;
 
   startMenu(spanish);
   ST7735_FillScreen(0x0000);   // set screen to black
@@ -391,8 +392,9 @@ int oldWalls(){
   frames[1].InitWall(3, 0, 125, 2);      // Top Wall 
   frames[1].InitWall(3, 126, 125, 128);  // Bottom Wall 
   frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
+  return 0;
 }
-int mainTestingGame(){
+int main(){
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -476,15 +478,29 @@ int mainTestingGame(){
   uint32_t currentFrame = 3;
   // LCD 
   LCD myDisplay;                  // Red player
-  myDisplay.displayNewScreen(currentFrame);   // Init screen to inital frame
+  // Sound 
+  Sound_Init();
+  Sound_Stop();
+  DAC5_Init();     // DAC initialization <--------------- DO THIS STUPID 
+  LED_Init();
+  bool s = false;
+  bool* spanish = &s;
   //##################################################  
   //##################################################  
+
+  // Start of Menue
+  startMenu(spanish); // funtion returns when player hits ready
+  ST7735_FillScreen(ST7735_BLACK);
+  Clock_Delay1ms(2000);
 
   __enable_irq();
 
   // Write this like G12 + Main
   bool alive = true;
   uint32_t health = 30;
+  myDisplay.displayNewScreen(currentFrame);   // Init screen to inital frame
+  greenOn();
+  redOff();
   while(1){
   // Timer G12: 
   //##################################################  
@@ -500,11 +516,8 @@ int mainTestingGame(){
       if(p1.touchingLaser(currentFrame)){
         if(health == 1){
           alive = false;
-          Clock_Delay1ms(2000);              
-          ST7735_FillScreen(ST7735_BLACK);
-          while(1){
-            // spin
-          }
+          greenOff();
+          redOn();
         }else{
           health --;
         }
@@ -521,6 +534,8 @@ int mainTestingGame(){
         myDisplay.oldFrame = currentFrame;
         myDisplay.newFrame = newFrame;
         currentFrame = newFrame;
+        sound = 0;
+        Sound_Start();
       }
     // Read Joystick 
       uint32_t x = 0;
@@ -539,25 +554,30 @@ int mainTestingGame(){
       b1.Buttons_In(&up, &down, &left, &right, &dash);
       bool shot = false;
       uint32_t shotDirection = 0; // Arbirary default 
-      if(down && !up && !left && !right){
+      if(down && !dash && !left && !right){
         shots[0].generate(p1.x,p1.y, 1,currentFrame); // Shot upwards @ player x, y
         shot = true;
         shotDirection = 1;
       }
-      else if(left && !down && !up && !right){
+      else if(left && !down && !dash && !right){
         shots[0].generate(p1.x,p1.y, 2,currentFrame); // Shot upwards @ player x, y
         shot = true;
         shotDirection = 2;
       }
-      else if(right && !up && !down && !left){
+      else if(right && !dash && !down && !left){
         shots[0].generate(p1.x,p1.y, 3,currentFrame); // Shot upwards @ player x, y
         shot = true;
         shotDirection = 3;
       }
-      else if(up && !down && !right && !left){
+      else if(dash && !down && !right && !left){
         shots[0].generate(p1.x,p1.y, 0,currentFrame); // Shot upwards @ player x, y
         shot = true;
         shotDirection = 0;
+      }
+      // Play the shooting sound when player shoots
+      if(shot){
+        sound = 2;
+        Sound_Start();
       }
       // shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
       // shots[1].generate(60,60, 0,1);
@@ -613,25 +633,39 @@ int mainTestingGame(){
   // Main Thread (LCD):
   //##################################################  
     // Spin on ready Semaphor
-    while(!myDisplay.DisplayReady){}
-    // Frameshift? 
-    if(myDisplay.FrameShift){
-      myDisplay.frameShift(p1);     // Needs to Erase the player & enemies 
+    // If i won, say I won
+    if(!enemys[0].alive && packets > 20){
+        // Dispay you won
+      winScreen(*spanish);
     }
-    // Display Player
-    myDisplay.displayPlayer(p1);
-    // Display Enemies
-    myDisplay.displayEnemies(currentFrame);
-    // Display Shots
-    myDisplay.displayShots(currentFrame);
-    // Display Hud
-    // Clear Semaphor
-    myDisplay.DisplayReady = false;
+    // Otherwise, if im alive, dispay the new game state
+    else if(alive){
+      while(!myDisplay.DisplayReady){}
+      // Frameshift? 
+      if(myDisplay.FrameShift){
+        myDisplay.frameShift(p1);     // Needs to Erase the player & enemies 
+      }
+      // Display Player
+      myDisplay.displayPlayer(p1);
+      // Display Enemies
+      myDisplay.displayEnemies(currentFrame);
+      // Display Shots
+      myDisplay.displayShots(currentFrame);
+      // Display Hud
+      // Clear Semaphor
+      myDisplay.DisplayReady = false;
+    }
+    // Otherwise if im dead, say i died 
+    else if(!alive){
+      Clock_Delay1ms(2000);              
+      deathScreen(*spanish);
+      Clock_Delay1ms(3000);
+      endScreen(*spanish);  // this goes forever
+    }
   //##################################################  
 
   // Just for testing:
   Clock_Delay1ms(33);              
-   
   }
 }
 

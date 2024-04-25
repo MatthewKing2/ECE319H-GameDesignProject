@@ -39,13 +39,15 @@ void DAC5_Init(void){
 // Note: this solution must be friendly
 void DAC5_Out(uint32_t data){
     // write this
-    uint32_t dout = GPIOB->DOUT31_0;
-      uint32_t mask_and = (uint32_t) 0xFFFFFFE0;
+    // uint32_t dout = GPIOB->DOUT31_0;
+    //   uint32_t mask_and = (uint32_t) 0xFFFFFFE0;
 
-      dout = dout | data;       // Set the 1's
-      data = data | mask_and;   // Change data so it can clear zeros
-      dout = dout & data;       // Clear the 0's
+    //   dout = dout | data;       // Set the 1's
+    //   data = data | mask_and;   // Change data so it can clear zeros
+    //   dout = dout & data;       // Clear the 0's
 
-      GPIOB->DOUT31_0 = dout;
-
+    //   GPIOB->DOUT31_0 = dout;
+    data = data & (~0xFFFFFFE0);
+    uint32_t mask = 0x1F;
+    GPIOB->DOUT31_0 = (GPIOB->DOUT31_0 & (~mask)) | data; //Output data
 }

@@ -122,7 +122,7 @@ void startMenu(bool* spanish){
 
         // Start of Game, exits function 
         if(*dash && currentChoice == 0){
-            sound = 0;
+            sound = 3;
             Sound_Start();
             return;
         }
@@ -130,7 +130,7 @@ void startMenu(bool* spanish){
         // Dont know
         else if(*right && currentChoice < 2){
             currentChoice++;
-            sound = 2;
+            sound = 3;
             Sound_Start();
             refreshStart(currentChoice, *spanish);
         }
@@ -149,7 +149,7 @@ void startMenu(bool* spanish){
             ST7735_SetRotation(0);
             ST7735_DrawBitmap(0, 160, start, 128, 160);
             ST7735_SetRotation(3);
-            sound = 0;
+            sound = 3;
             Sound_Start();
             refreshStart(currentChoice, *spanish);
         }
@@ -160,7 +160,7 @@ void startMenu(bool* spanish){
             ST7735_SetRotation(0);
             ST7735_DrawBitmap(0, 160, start, 128, 160);
             ST7735_SetRotation(3);
-            sound = 1;
+            sound = 3;
             Sound_Start();
             refreshStart(currentChoice, *spanish);
         }
@@ -208,7 +208,16 @@ void endScreen(/*Player p1, Enemy e1, Enemy e2, Enemy e3,*/ bool spanish){
 
 
 
-
+void winScreen(bool spanish){
+    if(spanish){
+        ST7735_FillScreen(0x0000);   // set screen to black
+        ST7735_DrawBitmap(20, 85, winspa, 130, 40);
+    }
+    else{
+        ST7735_FillScreen(0x0000);   // set screen to black
+        ST7735_DrawBitmap(20, 85, wineng, 120, 40);
+    }
+}
 
 
 

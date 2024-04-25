@@ -9,7 +9,7 @@
 // LaunchPad.h defines all the indices into the PINCM table
 
 // initialize your LEDs
-void LEDInit(void){
+void LED_Init(void){
     IOMUX->SECCFG.PINCM[PB12INDEX] = 0x00000081; // regular output
     IOMUX->SECCFG.PINCM[PB13INDEX] = 0x00000081; // regular output
 
