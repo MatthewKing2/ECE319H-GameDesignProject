@@ -17,7 +17,7 @@
 #include "SmallFont.h"
 #include "LED.h"
 #include "Switch.h"
-#include "Sound.h"
+//#include "Sound.h"  this was their sound, we are using a different file name
 #include "images/images.h"
 // My custom code 
 #include "Player.h"
@@ -31,6 +31,8 @@
 //#include "GameFifo.h"
 #include "GameUart.h"
 #include "MyButtons.h"
+#include "MenuScreens.h"      // Simons Files 
+#include "MySounds.h"         // Simons Files
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
 extern "C" void TIMG12_IRQHandler(void);
@@ -338,10 +340,38 @@ int mainTransmiter(){
 
 
 
+// Global Vars Simmon Added for Menue:
+  int sound;
+  //this is the global for sounds that will be accessed in MySounds
+  bool soundStop; //if this is true stop playing sound
+  //0 -> dash
+  //1 -> footsteps
+  //2 -> shoot
+  //3 -> click (menu button)
 
 
+// Main to test menue and some sound 
+int main(){
+  bool s = false;
+  bool* spanish = &s;
 
+  Sound_Init();
+  Sound_Stop();
+  Clock_Init80MHz(0);
+  LaunchPad_Init();
+  DAC5_Init();     // DAC initialization <--------------- DO THIS STUPID 
+  ST7735_InitPrintf();
+  __enable_irq();
 
+  startMenu(spanish);
+  ST7735_FillScreen(0x0000);   // set screen to black
+  Clock_Delay1ms(3000);
+  deathScreen(*spanish);
+  Clock_Delay1ms(3000);
+  endScreen(*spanish);
+
+  while(1){}
+}
 
 // Test Frames Telaporation 
 Frame frames[9];          // Global Array of Frames 
@@ -362,7 +392,7 @@ int oldWalls(){
   frames[1].InitWall(3, 126, 125, 128);  // Bottom Wall 
   frames[1].InitExit(124,59,128,69, 15,60,0); // Random Square
 }
-int main(){
+int mainTestingGame(){
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -811,33 +841,33 @@ int main3(void){ // main3
 
 
 
-// use main4 to test sound outputs
-int main4(void){ uint32_t last=0,now;
-  __disable_irq();
-  PLL_Init(); // set bus speed
-  LaunchPad_Init();
-  Switch_Init(); // initialize switches
-  LED_Init(); // initialize LED
-  Sound_Init();  // initialize sound
-  TExaS_Init(ADC0,6,0); // ADC1 channel 6 is PB20, TExaS scope
-  __enable_irq();
-  while(1){
-    now = Switch_In(); // one of your buttons
-    if((last == 0)&&(now == 1)){
-      Sound_Shoot(); // call one of your sounds
-    }
-    if((last == 0)&&(now == 2)){
-      Sound_Killed(); // call one of your sounds
-    }
-    if((last == 0)&&(now == 4)){
-      Sound_Explosion(); // call one of your sounds
-    }
-    if((last == 0)&&(now == 8)){
-      Sound_Fastinvader1(); // call one of your sounds
-    }
-    // modify this to test all your sounds
-  }
-}
+// // use main4 to test sound outputs
+// int main4(void){ uint32_t last=0,now;
+//   __disable_irq();
+//   PLL_Init(); // set bus speed
+//   LaunchPad_Init();
+//   Switch_Init(); // initialize switches
+//   LED_Init(); // initialize LED
+//   Sound_Init();  // initialize sound
+//   TExaS_Init(ADC0,6,0); // ADC1 channel 6 is PB20, TExaS scope
+//   __enable_irq();
+//   while(1){
+//     now = Switch_In(); // one of your buttons
+//     if((last == 0)&&(now == 1)){
+//       Sound_Shoot(); // call one of your sounds
+//     }
+//     if((last == 0)&&(now == 2)){
+//       Sound_Killed(); // call one of your sounds
+//     }
+//     if((last == 0)&&(now == 4)){
+//       Sound_Explosion(); // call one of your sounds
+//     }
+//     if((last == 0)&&(now == 8)){
+//       Sound_Fastinvader1(); // call one of your sounds
+//     }
+//     // modify this to test all your sounds
+//   }
+// }
 
 
 
@@ -857,7 +887,7 @@ int main5(void){ // final main
   Sensor.Init(); // PB18 = ADC1 channel 5, slidepot
   Switch_Init(); // initialize switches
   LED_Init();    // initialize LED
-  Sound_Init();  // initialize sound
+  //Sound_Init();  // initialize sound  this was their sound, we are doing a different sound
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
     // initialize interrupts on TimerG12 at 30 Hz
   TimerG12_IntArm(80000000/30,2);

@@ -47,3 +47,27 @@ void Buttons::Buttons_In(uint32_t* up, uint32_t* down, uint32_t* left, uint32_t*
 
     return;
 }
+
+// Simons code:
+// #######################################################
+
+// This function is the same as buttons in, but adds some delay so you cant press buttons back to back
+void Buttons::Menu_Buttons_In(uint32_t* up, uint32_t* down, uint32_t* left, uint32_t* right, uint32_t* dash){
+    static uint32_t count = 100000;
+    if(count == 0){
+        Buttons_In(up, down, left, right, dash);
+        count = 100000;
+    }else{
+        count --;
+    }
+}
+
+
+// Quick Boolean to check and see if a button as been pressed (T/F)
+bool Buttons::Buttons_Pressed(){
+    int a = GPIOB->DIN31_0 & 0x1000000;
+    if( (GPIOB->DIN31_0 & 0x1000000)  || (GPIOB->DIN31_0 & 0x100000) || (GPIOB->DIN31_0 & 0x80000) ||  (GPIOB->DIN31_0 & 0x40000) ||  (GPIOA->DIN31_0 & 0x8000000) ){
+        return true;
+    }
+    return false;
+}

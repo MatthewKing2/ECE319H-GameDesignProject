@@ -18,6 +18,18 @@ void DAC5_Init(void){
 // Assumes LaunchPad_Init has been called
 // I.e., PortB has already been reset and activated (do not reset PortB here again)
     // write this
+    IOMUX->SECCFG.PINCM[PB0INDEX] = (uint32_t) 0x00000081;
+      IOMUX->SECCFG.PINCM[PB1INDEX] = (uint32_t) 0x00000081;
+      IOMUX->SECCFG.PINCM[PB2INDEX] = (uint32_t) 0x00000081;
+      IOMUX->SECCFG.PINCM[PB3INDEX] = (uint32_t) 0x00000081;
+      IOMUX->SECCFG.PINCM[PB4INDEX] = (uint32_t) 0x00000081;
+
+      // Step #2) Enable Output for the pins (friendly)
+      uint32_t doe = GPIOB->DOE31_0;
+      uint32_t mask = (uint32_t) 0x0000001F;
+      doe = doe | mask;       // Bitwise Or
+      GPIOB->DOE31_0 = doe;
+
 }
 
 // **************DAC5_Out*********************
@@ -27,4 +39,13 @@ void DAC5_Init(void){
 // Note: this solution must be friendly
 void DAC5_Out(uint32_t data){
     // write this
+    uint32_t dout = GPIOB->DOUT31_0;
+      uint32_t mask_and = (uint32_t) 0xFFFFFFE0;
+
+      dout = dout | data;       // Set the 1's
+      data = data | mask_and;   // Change data so it can clear zeros
+      dout = dout & data;       // Clear the 0's
+
+      GPIOB->DOUT31_0 = dout;
+
 }

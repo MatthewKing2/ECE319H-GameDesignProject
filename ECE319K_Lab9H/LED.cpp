@@ -9,22 +9,31 @@
 // LaunchPad.h defines all the indices into the PINCM table
 
 // initialize your LEDs
-void LED_Init(void){
-    // write this
-    
-}
-// data specifies which LED to turn on
-void LED_On(uint32_t data){
-    // write this
-    // use DOUTSET31_0 register so it does not interfere with other GPIO
-  
+void LEDInit(void){
+    IOMUX->SECCFG.PINCM[PB12INDEX] = 0x00000081; // regular output
+    IOMUX->SECCFG.PINCM[PB13INDEX] = 0x00000081; // regular output
+
+    GPIOB->DOE31_0 |= 0x3000; // enable
 }
 
-// data specifies which LED to turn off
-void LED_Off(uint32_t data){
-    // write this
-    // use DOUTCLR31_0 register so it does not interfere with other GPIO
- 
+void greenOn(void){
+    //GPIOB->DOUT31_0 |= 0x2000;
+    GPIOB->DOUTSET31_0 |= 0x2000;
+}
+
+void greenOff(void){
+    //GPIOB->DOUT31_0 &= ~0x2000;
+    GPIOB->DOUTCLR31_0 |= 0x2000;
+}
+
+void redOn(void){
+    //GPIOB->DOUT31_0 |= 0x1000;
+    GPIOB->DOUTSET31_0 |= 0x1000;
+}
+
+void redOff(void){
+    //GPIOB->DOUT31_0 &= ~0x1000;
+    GPIOB->DOUTCLR31_0 |= 0x1000;
 }
 
 // data specifies which LED to toggle
