@@ -477,11 +477,11 @@ int main(){
   // Current Frame
   uint32_t currentFrame = 3;
   // LCD 
-  LCD myDisplay;                  // Red player
+  LCD myDisplay;                  
   // Sound 
   Sound_Init();
   Sound_Stop();
-  DAC5_Init();     // DAC initialization <--------------- DO THIS STUPID 
+  DAC5_Init();     
   LED_Init();
   bool s = false;
   bool* spanish = &s;
@@ -492,7 +492,6 @@ int main(){
   startMenu(spanish); // funtion returns when player hits ready
   ST7735_FillScreen(ST7735_BLACK);
   Clock_Delay1ms(2000);
-
   __enable_irq();
 
   // Write this like G12 + Main
@@ -505,30 +504,21 @@ int main(){
   // Timer G12: 
   //##################################################  
     // Alive
-      // alive &= !(p1.touchingLaser(currentFrame)); 
-      // // For testing, when die, game ends 
-      // if(!alive){
-      //   uint32_t counter = 0;
-      //   while(1){
-      //     counter ++;
-      //   }
-      // }
-      if(p1.touchingLaser(currentFrame)){
-        if(health == 1){
-          alive = false;
-          greenOff();
-          redOn();
-        }else{
-          health --;
-        }
-      } 
+    if(p1.touchingLaser(currentFrame)){
+      if(health == 1){
+        alive = false;
+        greenOff();
+        redOn();
+      }else{
+        health --;
+      }
+    } 
     // Clear Shots (MUST be after alive check)
       myDisplay.clearShots(currentFrame);
     // Exit 
       bool exit = false;
       uint32_t newFrame;
       exit = p1.touchingExit(currentFrame, &newFrame);
-        // Outputs: exit T/F, and newFrame Index
       if(exit){
         myDisplay.FrameShift = true;
         myDisplay.oldFrame = currentFrame;
@@ -545,7 +535,6 @@ int main(){
       p1.moveLinear(x, y, currentFrame);         
     // Shoot 
       // Read buttons 
-      // void Buttons::Buttons_In(uint32_t* up, uint32_t* down, uint32_t* left, uint32_t* right, uint32_t* dash){
       uint32_t up;
       uint32_t down;
       uint32_t left;
@@ -579,11 +568,8 @@ int main(){
         sound = 2;
         Sound_Start();
       }
-      // shots[currentFrame].generate(p1.x,p1.y, 0,0); // Shot upwards @ player x, y
-      // shots[1].generate(60,60, 0,1);
     // Send my Info
-      //char UART2_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y);
-      UART1_Transmit(1, currentFrame, alive, false, shot, shotDirection, p1.x, p1.y);
+    UART1_Transmit(1, currentFrame, alive, false, shot, shotDirection, p1.x, p1.y);
     // Read data out of SW Fifo 
       // #####################################
       bool newData = false;
@@ -612,17 +598,7 @@ int main(){
       // #####################################
       // Update Enemies
       enemys[0].updatePosition(r1.x, r1.y, r1.frame, r1.alive);
-      // Check for Invalid data
-      // if(packets > 100 && (enemys[0].y < 10)){
-      //   uint32_t dataError = 0;
-      //   while(1){
-      //     dataError ++;
-      //   }
-      // }
-        // Have to do some logic to determine if an enemy left my frame 
-        // and then have to erase them
       // Update Shots
-        // Currently does not work
       if(r1.shot){
         shots[1].generate(enemys[0].x, enemys[0].y, r1.shotDirection, enemys[0].frame);
       }
@@ -637,6 +613,7 @@ int main(){
     if(!enemys[0].alive && packets > 20){
         // Dispay you won
       winScreen(*spanish);
+      while(1){}
     }
     // Otherwise, if im alive, dispay the new game state
     else if(alive){
@@ -659,8 +636,8 @@ int main(){
     else if(!alive){
       Clock_Delay1ms(2000);              
       deathScreen(*spanish);
-      Clock_Delay1ms(3000);
-      endScreen(*spanish);  // this goes forever
+      while(1){}
+      //endScreen(*spanish);  // this goes forever
     }
   //##################################################  
 
