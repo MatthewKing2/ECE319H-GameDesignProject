@@ -56,7 +56,7 @@ Enemy::Enemy(){
   this->h = 16;
   this->w = 16;
   this->color = ST7735_Color565(0, 0, 255);
-  this->image = baseEnemy8x8;
+  this->image = bobaFett;
   this->alive = true;
   this->frame = 10;          // Out of Map by default 
 }

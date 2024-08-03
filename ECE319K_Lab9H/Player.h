@@ -14,15 +14,15 @@
 
 class Player{ 
   public: // Data 
-    int32_t x;         // Player X and Y position 
+    int32_t x;              // Player X and Y position 
     int32_t y;
-    int32_t prevX;         // Player X and Y position 
+    int32_t prevX;          // Player X and Y position 
     int32_t prevY;
-    uint16_t h,w;       // Player Width and Hight 
-    uint32_t color;     // Player color
-    const uint16_t* image;    // What player looks like
-    bool alive;         // Is player alive
-    bool murder;        // Is the player the murderur 
+    uint16_t h,w;           // Player Width and Hight 
+    uint32_t color;         // Player color
+    const uint16_t* image;  // What player looks like
+    bool alive;             // Is player alive
+    bool murder;            // Is the player the murderur 
 
   public: // Functions (in the order they would be called)
     Player(int32_t x, int32_t y, const uint16_t* image, bool murder);          // Constructor 

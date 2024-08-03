@@ -59,7 +59,7 @@ Frame frames[9];          // Global Array of Frames
 Shot shots[4];            // Global Array of Shots
 Enemy enemys[3];          // Global Array of Enemys
 // Set up Player
-Player p1(60, 60, redPlayer8x8, false);
+Player p1(60, 60, bobaFett, false);
 uint32_t currentFrame = 0;    // Change this to make player spawn in differnt frame 
 bool alive = true;
 uint32_t health = 30;
@@ -263,6 +263,7 @@ int main(){
 
   // Initilizations for game 
   //##################################################  
+  enemys[0].assignSprite(hanSolo);
   UART2_Init();
   UART1_Init();
   b1.Buttons_Init();
@@ -291,7 +292,7 @@ int main(){
     while(!myDisplay.DisplayReady){}
       // If i won, say I won
       if(!enemys[0].alive && packets > 20){
-          // Dispay you won
+        __disable_irq();
         winScreen(*spanish);
         while(1){}
       }
@@ -314,6 +315,7 @@ int main(){
       }
       // Otherwise if im dead, say i died 
       else if(!alive){
+        __disable_irq();
         Clock_Delay1ms(2000);              
         deathScreen(*spanish);
         while(1){}

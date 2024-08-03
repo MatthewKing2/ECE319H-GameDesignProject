@@ -25,13 +25,18 @@ Receiver::Receiver(){
     this->frame = 10; // Out of Frame be fault 
 }
 
+// Packet format (4 bytes)
+  // one   = 1, msg 
+  // two   = 0, frame number, alive, shot, shot direction
+  // three = 0, player X
+  // four  = 0, player Y
 void Receiver::receiverTranslate(char one, char two, char three, char four){
     this->msg = one&0x7F;
-    this->frame = (two&(7<<4))>>4;  // Need to shift it back b/c its not at the start of byte like direction
+    this->frame = (two&(7<<4))>>4;  
     this->alive = (two&(1<<3))>>3;
-    this->pickup = 0;               // Not implimited rn
+    this->pickup = 0;               
     this->shot = (two&(1<<2))>>2;
-    this->shotDirection = two&(3);  // 2 bits ==> &3 
+    this->shotDirection = two&(3);  
     this->x = three&0x7F;
     this->y = four&0x7F;
 }
@@ -263,6 +268,11 @@ void Uart1_Transmit_1Byte(char data){
 
 
 
+// Packet format (4 bytes)
+  // one   = 1, msg 
+  // two   = 0, frame number, alive, shot, shot direction
+  // three = 0, player X
+  // four  = 0, player Y
 void UART1_Transmit(uint32_t msg, uint32_t frame, bool alive, bool pickup, bool shot, uint32_t shotDirection, int32_t x, int32_t y){
 
     // Error Checking on X and Y

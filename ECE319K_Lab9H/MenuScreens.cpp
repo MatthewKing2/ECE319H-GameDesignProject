@@ -108,8 +108,9 @@ void startMenu(bool* spanish){
 
     int currentChoice = 0;  // 0->start  1->english  2->spanish
 
-    ST7735_SetRotation(0);
-    ST7735_DrawBitmap(0, 160, start, 128, 160);
+    ST7735_SetRotation(2);
+    //ST7735_DrawBitmap(0, 160, start, 128, 160);
+    ST7735_DrawBitmap(0, 160, start, 127, 159);
     ST7735_SetRotation(3);
     refreshStart(currentChoice, *spanish);
 

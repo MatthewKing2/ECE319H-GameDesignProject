@@ -17,9 +17,9 @@ LCD::LCD(){
     this->DisplayReady = false;  // Not ready yet
     // Colors for stuff and things
     this->backgroundColor = ST7735_Color565(0, 0, 0);
-    this->wallColor = ST7735_Color565(255, 255, 255);
+    this->wallColor = ST7735_Color565(120, 120, 120);       // light blue grey
     //this->exitColor = ST7735_Color565(0, 204, 255);
-    this->exitColor = ST7735_Color565(0, 0, 255);
+    this->exitColor = ST7735_Color565(60, 60, 60);          // dark pure grey
     this->shotColor = ST7735_Color565(255, 0, 0);
 
 }

@@ -48,7 +48,7 @@ bool Exit::touching(int32_t x, int32_t y, uint32_t h, uint32_t w){
       // See if X is out of bounds
       // See if Y is out of bounds
       // Note: -1 has to do with pixles vs coordinates
-    if( ((x+w-1 < TLx)||(x > BRx))   ||   ((y+h-1 < TLy)||(y > BRy)) ){
+    if( ((x+w < TLx)||(x > BRx))   ||   ((y+h < TLy)||(y > BRy)) ){
       return false; // not touching
     }
     return true; // touching 
