@@ -1,8 +1,15 @@
-/* SlidePot.cpp
- * Students put your names here
- * Modified: put the date here
- * 12-bit ADC input on ADC1 channel 5, PB18
- */
+
+//------------------------------------------------------------------------------
+// File: Player.cpp
+// Author: Matthew King
+// Description: Implementation file for the Player class. Contains definitions 
+//              for the Player class member functions, including movement logic, 
+//              collision detection, and interaction with external frame and shot 
+//              data. Assumes external dependencies for joystick inputs, frames, 
+//              and shots.
+// Dependencies: Player.h, ST7735.h (Joystick), LaserShot.h
+//------------------------------------------------------------------------------
+
 #include <ti/devices/msp/msp.h>
 #include "Player.h"
 #include "../inc/ST7735.h"
@@ -12,10 +19,12 @@
 extern Frame frames[];
 extern Shot shots[];
 
-
-// constructor, invoked on creation of class
+//------------------------------------------------------------------------------
+// Function: Player::Player(int32_t x, int32_t y, const uint16_t* image, bool murder)
+// Description: Initializes the player with specified position, sprite image, and 
+//              murderer status. Sets default values for player attributes.
+//------------------------------------------------------------------------------
 Player::Player(int32_t x, int32_t y, const uint16_t* image, bool murder){
-  // write this, runs on creation
   this->x = x;
   this->y = y;
   this->prevX = 0;
@@ -28,11 +37,18 @@ Player::Player(int32_t x, int32_t y, const uint16_t* image, bool murder){
   this->alive = true;
 }
 
-// Goes through the awrray of shots and returns true if a valid enemy shot is touching the player
+//------------------------------------------------------------------------------
+// Function: bool Player::touchingLaser(uint32_t currFrameIndex)
+// Description: Checks if any of the enemy shots (indices 1 to 3, my shot is index 
+//              0) are currently touching the player. Returns true if any valid 
+//              enemy shot is touching the player.
+// Note: Uses shots array (globally accessible) and sees if valid enemy shots are 
+//       (idenified by their frame index) are in collision with the player.
+//------------------------------------------------------------------------------
 bool Player::touchingLaser(uint32_t currFrameIndex){
     bool touching = false;
-    for(int i = 1; i < 4; i++){ // Index 0 is my shot, index 1,2,3 are enemy shots
-        if((shots[i].valid) && (shots[i].frame == currFrameIndex)){ // Dont care about old shots (invalid ones)
+    for(int i = 1; i < 4; i++){ 
+        if((shots[i].valid) && (shots[i].frame == currFrameIndex)){ 
             touching |= shots[i].touching(this->x,this->y,8,8);
         }
     }
@@ -40,10 +56,17 @@ bool Player::touchingLaser(uint32_t currFrameIndex){
 }
 
 
-
-// Uses global Frames array to determine if touching an exit
-// Returns T/F if touching, and the frameindex to new frame
-// Updates player X and Y attributes to new position 
+//------------------------------------------------------------------------------
+// Function: bool Player::touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex)
+// Description: Determines if the player is touching an exit based on the global
+//              frames array. If touching returns true and updates the frame, player position.
+// Parameters:
+//    - newFrameIndex: Pointer to store the new frame index if an exit is touched.
+// Note: Uses frame data to update player position and frame index upon touching an exit.
+//       Sets `newFrameIndex` to 10 if no exit being touched, so that if (for some reason)
+//       the player tries to change frames when not touching an exit the program will die. 
+//       (index out of range error b/c only 9 frames).
+//------------------------------------------------------------------------------
 bool Player::touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex){
     // See if player is touching 
     bool touching = false;
@@ -70,20 +93,30 @@ bool Player::touchingExit(uint32_t currFrameIndex, uint32_t* newFrameIndex){
     return false;
 }
 
-
-// Depending on the walls in the current frame, and the player's desired movement
-// Move them the maximum amount (until touching wall)
+//------------------------------------------------------------------------------
+// Function: void Player::maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex)
+// Description: Calculates and updates the maximum possible movement of the player 
+//              so that player moves as close as possible to walls without overllaping them.
+// Parameters:
+//    - deltaX: Desired change in X position.
+//    - deltaY: Desired change in Y position.
+// Note: Adjusts movement to ensure player does not overlap walls, rounding movements
+//       when necessary to avoid exceeding bounds.
+//------------------------------------------------------------------------------
 void Player::maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex){
 
+    // How far over a boundary the desired movment is
     int32_t Xover = 0;
     int32_t Yover = 0;
 
+    // Find the values by looking at all walls in frame
     for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
         frames[currFrameIndex].walls[i].touching(this->x + deltaX -4, this->y + deltaY -4, 16, 16, &Xover, &Yover);
     }
 
-    // B/C Xover & Yover are simply how far to get out of shape, when added with deltaX,Y value may be greater than 4
-    // Therefore, need to round down to 4 (but mod 5 is only for positive numbers), therefore this solution:
+    // Since Xover & Yover are how far player must move to get out of the wall, when added with deltaX,Y value may be 
+    // greater than 4 (the greatest allowed player movment). Therefore, need to round down to 4 (but mod 5 is only for 
+    // positive numbers), therefore this solution:
     bool outOfRangeX = false;
     bool outOfRangeY = false;
 
@@ -107,54 +140,47 @@ void Player::maxMove(int32_t deltaX, int32_t deltaY, uint32_t currFrameIndex){
     }
     if(!outOfRangeY){this->y += (deltaY + Yover);}
 
-
 }
 
-
+//------------------------------------------------------------------------------
+// Function: void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFrameIndex)
+// Description: Moves the player based on joystick input using a linear approach, 
+//              considering walls and adjusting movement accordingly.
+// Parameters:
+//    - joyStickX: X-axis joystick input.
+//    - joyStickY: Y-axis joystick input.
+//    - currFrameIndex: Current frame index used for wall detection.
+// Note: Adjusts joystick inputs and uses `maxMove` to handle movement while avoiding walls.
+//------------------------------------------------------------------------------
 void Player::moveLinear(uint32_t joyStickX, uint32_t joyStickY, uint32_t currFrameIndex){
 
-    //Change origin (and invert y) 
+    //Change origin (and invert x,y)
     int32_t x = joyStickX - 2048 ;
     int32_t y = joyStickY - 2048 ;
     y *= -1;
-    x *= -1;    // x is also inverted apparently
+    x *= -1;
 
-    // Max in each direction is 2048 
-    // Want 4 pixles of movement ==> 2048 / (2048/4)
-        // ==> 512 
+    // The max joystick value (with new origin) is 2048. 
+    // Want a max of 4 pixle movment at a time 
+    // 2048/x = 4. x is 512
     x /= 512;
     y /= 512;
-    
-    // See if hitting any walls 
-    // ##################################################
-    // Wall Stuff
-        // See if touching a wall 
-        // Seperate into X and Y detection
-    // bool touchingX = false;
-    // for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
-    //     touchingX |= frames[currFrameIndex].walls[i].touching(this->x + x -4, this->y-4, 16, 16);
-    // }
 
-    // bool touchingY = false;
-    // for(int i = 0; i <= frames[currFrameIndex].wallsIndex; i ++){
-    //     touchingY |= frames[currFrameIndex].walls[i].touching(this->x -4, this->y + y -4, 16, 16);
-    // }
-    // // If not touching, change the palyers position
-    // if(!touchingX){
-    //     this->x += x;
-    // }
-    // if(!touchingY){
-    //     this->y += y;
-    // }
-
+    // Use the maxMove function to handle wall collisions
     maxMove(x, y, currFrameIndex);
-  
 
 }
 
-
-// void Player::errorCorrect();    // Makes any out of range X and Y in range
-
+//------------------------------------------------------------------------------
+// Function: void Player::moveExpo(uint32_t joyStickX, uint32_t joyStickY)
+// Description: Moves the player based on joystick input using an exponential approach.
+// Parameters:
+//    - joyStickX: X-axis joystick input.
+//    - joyStickY: Y-axis joystick input.
+// Note: This function is not used
+// Note: Squared joystick input values to achieve exponential movement, then scaled
+//       to update player position. Inverts Y movement.
+//------------------------------------------------------------------------------
 void Player::moveExpo(uint32_t joyStickX, uint32_t joyStickY){
 
     //Change origin (and invert y) 
@@ -162,42 +188,27 @@ void Player::moveExpo(uint32_t joyStickX, uint32_t joyStickY){
     int32_t y = joyStickY - 2048 ;
     int32_t signY = 1;
     int32_t signX = 1;
-
-    if(y < 0){
-        signY = -1;
-    }
-
-    if(x < 0){
-        signX = -1;
-    }
+    if(y < 0){signY = -1;}
+    if(x < 0){signX = -1;}
 
     // Square it 
     x = x * x;
     y = y * y;
-
     // Devide by big number
     x = x / 1048576;
     y = y / 1048576;
-
     // Fix Sign 
     x = x * signX;
     y = y * signY * -1; // invert y
-
     // Actually change the palyer's position 
     this->x += x;
     this->y += y;
 
 }
 
-
-// Position Getter
-uint32_t Player::x_position(void){
-    return this->x;
-}
-
-
-
-// Position Getter
-uint32_t Player::y_position(void){
-    return this->y;
-}
+//------------------------------------------------------------------------------
+// Description: Returns the current X position of the player.
+// Description: Returns the current Y position of the player.
+//------------------------------------------------------------------------------
+uint32_t Player::x_position(void){return this->x;}
+uint32_t Player::y_position(void){return this->y;}

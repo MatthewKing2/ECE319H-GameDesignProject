@@ -1,40 +1,35 @@
 
+//------------------------------------------------------------------------------
+// File: Enemy.
+// Author: Matthew King
+// Description: Implementation file for the Enemy class. This file contains the
+//              definitions of the Enemy class's member functions, handling 
+//              the initialization, updating of position, and sprite management.
+// Dependencies: Enemy.h, images.h
+//------------------------------------------------------------------------------
 
 #include <ti/devices/msp/msp.h>
 #include "Enemy.h"
 #include "../inc/ST7735.h"
 #include "images/images.h"
 
-// class Enemy{ 
-//   public: // Data 
-//     int32_t x;         // Player X and Y position 
-//     int32_t y;
-//     int32_t prevX;         // Player X and Y position 
-//     int32_t prevY;
-//     uint16_t h,w;       // Player Width and Hight 
-//     uint32_t color;     // Player color
-//     const uint16_t* image;    // What player looks like
-//     bool alive;         // Is player alive
-//     uint32_t frame;     // What frame enemy is in
-
-//   public: // Functions (in the order they would be called)
-//     Enemy(int32_t x, int32_t y, const uint16_t* image);         // Testing Constructor 
-//     Enemy();                                                    // Default Constructor
-//     void updatePosition(int32_t x, int32_t y, uint32_t frame);  // Updates enemy object
-
-// };
-
-
-
-// Update Enemies Sprite
+//------------------------------------------------------------------------------
+// Function: Enemy::assignSprite
+// Description: Sets a new sprite image for the enemy. This function simply
+//              assigns the provided image pointer to the object's image member.
+//------------------------------------------------------------------------------
 void Enemy::assignSprite(const uint16_t* image){
     this->image = image;
 }
 
-
-// constructor, invoked on creation of class
+//------------------------------------------------------------------------------
+// Function: Enemy::Enemy(int32_t x, int32_t y, const uint16_t* image, uint32_t frame)
+// Description: Parameterized constructor initializes the enemy's position, 
+//              sprite, and state. Sets default values for height, width, and color.
+//              Noteworthy:
+//              - Initializes default dimensions (16x16) and color (blue).
+//------------------------------------------------------------------------------
 Enemy::Enemy(int32_t x, int32_t y, const uint16_t* image, uint32_t frame){
-  // write this, runs on creation
   this->x = x;
   this->y = y;
   this->prevX = 0;
@@ -47,9 +42,17 @@ Enemy::Enemy(int32_t x, int32_t y, const uint16_t* image, uint32_t frame){
   this->frame = frame;          
 }
 
+//------------------------------------------------------------------------------
+// Function: Enemy::Enemy()
+// Description: Default constructor initializes the enemy with a default position
+//              off-screen, a default image, and marks it as alive. Sets frame to
+//              an out-of-map value.
+//              Noteworthy:
+//              - Default image and color are set.
+//              - Puts the enemy off-screen by default (should never be called)
+//------------------------------------------------------------------------------
 Enemy::Enemy(){
-  // write this, runs on creation
-  this->x = 255;    // Image is totally off the screen, wont display
+  this->x = 255;
   this->y = 255;
   this->prevX = 0;
   this->prevX = 0;
@@ -58,9 +61,24 @@ Enemy::Enemy(){
   this->color = ST7735_Color565(0, 0, 255);
   this->image = bobaFett;
   this->alive = true;
-  this->frame = 10;          // Out of Map by default 
+  this->frame = 10;
 }
 
+//------------------------------------------------------------------------------
+// Function: Enemy::updatePosition
+// Description: Updates the enemy's position, frame, and state. Also handles
+//              checking if the enemy has changed frames or moved significantly
+//              (jitter prevention).
+//              Noteworthy:
+//              - Includes error checking to ensure position data is within 
+//                valid bounds (6 to 114).
+//              - Detects if the enemy has moved enough to consider it a 
+//                "frame change", if so the a flag is set, so the enemy gets
+//                erased (so the sprite does not linger in a frame its left).
+//              - Also detects if the enemy has "jittered" (moved more than 
+//                possible). This means that a packet from the other controller
+//                was missed, so we have to manually erase where the enemy was.
+//------------------------------------------------------------------------------
 void Enemy::updatePosition(int32_t x, int32_t y, uint32_t frame, bool alive){
     // Error checking to ensure data is valid (prevent bug where enemy glitches to top of screen)
     if(x < 6 || x > 114){return;}
@@ -79,8 +97,7 @@ void Enemy::updatePosition(int32_t x, int32_t y, uint32_t frame, bool alive){
     }
     this->frame = frame;
 
-    // Error checking on enemy player movment
-      // b/c some packets are lost, enemy can jitter
+    // "Jitter" checking on enemy player movment
     if((this->x < (this->prevX-4))||(this->x > (this->prevX+4))){
       this->changedFrames = true;
     }

@@ -1,9 +1,16 @@
-/*
- * MenuScreens.cpp
- *
- *  Created on: Apr 19, 2024
- *      Author: simon
- */
+
+//------------------------------------------------------------------------------
+// File: MenuScreens.cpp
+// Author: Simon
+// Description: Manages the display of various menu screens, including the start 
+//              menu, death screen, end screen, and win screen. Handles user 
+//              interactions and updates the screen based on the user's choices. 
+//              Provides functionality to toggle between languages (English and 
+//              Spanish) and manage game start and end scenarios.
+// Dependencies: ST7735.h, Clock.h, LaunchPad.h, TExaS.h, Timer.h, SlidePot.h, 
+//              DAC5.h, SmallFont.h, LED.h, Switch.h, images.h, MyButtons.h, 
+//              MySounds.h, UART.h
+//------------------------------------------------------------------------------
 
 #include <stdio.h>
 #include <stdint.h>
@@ -21,8 +28,6 @@
 #include "images/images.h"
 #include "MyButtons.h"
 #include "MySounds.h"
-//#include "lights.h"
-
 #include "../inc/UART.h"
 
 extern int sound; //this is the global for sounds that will be accessed in MySounds
@@ -201,10 +206,6 @@ void endScreen(/*Player p1, Enemy e1, Enemy e2, Enemy e3,*/ bool spanish){
         ST7735_DrawCharS(xt, 90, wordarr[spanish][3][i], ST7735_RED, ST7735_RED, 2);
         xt+=12;
     }
-//    ST7735_DrawBitmap(90/*double check*/, 32 + (20*p1.rank), p1.image, 118, 48);
-//    ST7735_DrawBitmap(90/*double check*/, 32 + (20*e1.rank), p1.image, 118, 48);
-//    ST7735_DrawBitmap(90/*double check*/, 32 + (20*e2.rank), p1.image, 118, 48);
-//    ST7735_DrawBitmap(90/*double check*/, 32 + (20*e3.rank), p1.image, 118, 48);
 }
 
 
@@ -219,6 +220,4 @@ void winScreen(bool spanish){
         ST7735_DrawBitmap(20, 85, wineng, 120, 40);
     }
 }
-
-
 

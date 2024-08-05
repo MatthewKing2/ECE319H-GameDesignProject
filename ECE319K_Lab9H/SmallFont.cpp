@@ -1,7 +1,14 @@
-// SmallFont.c
-// Jonathan Valvano 
-// draws small numbers
-// 11/5/2023
+
+//------------------------------------------------------------------------------
+// File: SmallFont.c
+// Author: Jonathan Valvano
+// Description: 
+//   This file provides functions and data for rendering small-sized numeric 
+//   fonts on an ST7735 display. The fonts are available in two orientations:
+//   vertical (5 pixels wide, 6 pixels tall) and horizontal (6 pixels wide, 
+//   5 pixels tall). The file includes functions for displaying 4-digit numbers 
+//   using these fonts.
+//------------------------------------------------------------------------------
 
 #include <stdint.h>
 #include <SmallFont.h>

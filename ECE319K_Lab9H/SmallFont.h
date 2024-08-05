@@ -1,7 +1,10 @@
-// SmallFont.h
-// Jonathan Valvano 
-// draws small numbers
-// 11/5/2023
+
+//------------------------------------------------------------------------------
+// File: SmallFont.h
+// Author: Jonathan Valvano
+// Description: Function Protype and descirptions for small font functions.
+//------------------------------------------------------------------------------
+
 #ifndef __SmallFont_h
 #define __SmallFont_h
 #include <stdint.h>

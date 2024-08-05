@@ -1,72 +1,76 @@
 
-
+//------------------------------------------------------------------------------
+// File: LaserShot.cpp
+// Author: Matthew King
+// Description: Implements the `Shot` class functionalities for managing laser shots 
+//              in the game. This includes initializing shots, detecting collisions, 
+//              generating new shots based on direction, and updating shot validity.
+//              The class integrates with the `Frame` and `Wall` classes to interact 
+//              with the game's environment.
+// Dependencies: Frame.h, LaserShot.h
+//------------------------------------------------------------------------------ 
 
 #include <ti/devices/msp/msp.h>
 #include "LaserShot.h"
 #include "../inc/ST7735.h"
 #include "Frame.h"
-
 extern Frame frames[];
 
-
-// class Shot{ 
-//   public: // Data (Mailbox system) 
-//     int32_t TLx;           // Top right X 
-//     int32_t TLy;           // Top right Y
-//     int32_t BRx;           // Bottom left X 
-//     int32_t BRy;           // Bottom left Y
-//     bool valid;            // Semaphor
-
-//   public: // Functions (in the order they would be called)
-//     Shot(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, bool valid);                           // Constructor 
-//     bool touching(int32_t x, int32_t y, uint32_t h, uint32_t w, int32_t* Xover, int32_t* Yover);    // Based on player X and Y position determine if they're touching 
-//     void generate(int32_t x, int32_t y, uint32_t direction);                                        // Generates a new shot until a wall is hit (updates its data)
-
-// };
-
-
-// Non-Default Constructor (called for testing)
+//------------------------------------------------------------------------------
+// Function: Shot::Shot(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, bool valid)
+// Description: Initializes a shot with default values for coordinates and frame.
+//              Used primarily for testing, the shot is set to an invalid frame to
+//              prevent errors.
+//------------------------------------------------------------------------------ 
 Shot::Shot(int32_t TRx, int32_t TRy, int32_t BRx, int32_t BRy, bool valid){
     this->TLx = 0;
     this->TLy = 0;
     this->BRx = 0;
     this->BRy = 0;
-    this->frame = 10;      // Invalid index (prevent stupid errors)
+    this->frame = 10;
     this->valid = false;
 }                           
 
-
-// Default Constuctor (called when global array created)
+//------------------------------------------------------------------------------
+// Function: Shot::Shot()
+// Description: Default constructor initializes "empty" shot. (not used)
+//------------------------------------------------------------------------------ 
 Shot::Shot(){
     this->TLx = 0;
     this->TLy = 0;
     this->BRx = 0;
     this->BRy = 0;
-    this->frame = 10;      // Invalid Index (prevent stupid erros) 
+    this->frame = 10;
     this->valid = false;
 }
 
-// Given some Player X,Y and H,W, dtermine if they are touching the shot (and die) 
+//------------------------------------------------------------------------------
+// Function: Shot::touching(int32_t x, int32_t y, uint32_t h, uint32_t w)
+// Description: Checks if the shot intersects with a specified rectangular area by 
+//              comparing the shot's bounding box with the given coordinates and dimensions.
+//------------------------------------------------------------------------------ 
 bool Shot::touching(int32_t x, int32_t y, uint32_t h, uint32_t w){ 
-    // Same code as Exit's touching
+    
     if( ((x+w-1 < TLx)||(x > BRx))   ||   ((y+h-1 < TLy)||(y > BRy)) ){
       return false; 
     }
     return true; 
+
 }
 
 
-
-// Given the shot direction, and Player X,Y generate a new shot (until it hits a wall)
-// Direction
-    // 0 = Up
-    // 1 = Down
-    // 2 = Left
-    // 3 = Right
+//------------------------------------------------------------------------------
+// Function: Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrameIndex)
+// Description: Generates a new shot based on the player's position and the direction butten,
+//              pressed, updating the shot's coordinates until it either hits a wall or exit. 
+//              Noteworthy:
+//              - Depending on the direction, the shot's bounding box (TLx, TLy, BRx, BRy) 
+//                is adjusted either vertically or horizontally.
+//              - Uses a loop to incrementally expand the shot's size (in the specified direction)
+//                while checking for collisions with walls, utilizing the `Wall::touching` method 
+//              - Direction values are mapped as follows: 0 = Up, 1 = Down, 2 = Left, 3 = Right.
+//------------------------------------------------------------------------------ 
 void Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrameIndex){
-
-    // Increase the coresponding axis by 4 until it hits a wall 
-        // Use wall's touching boolean, and overX, overY to stop and resize 
 
     // Player Height and Width
     uint32_t w = 8;
@@ -75,9 +79,6 @@ void Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrame
     // Not currently using these vars, just for funtion calls :)
     int32_t Xover;
     int32_t Yover;
-
-    // bool Wall::touching(int32_t x, int32_t y, uint32_t h, uint32_t w, int32_t* Xover, int32_t* Yover){
-        // Basically just gonna change the height (or wideth) var, untill we hit 
 
     // Up generate 
     if(direction == 0){
@@ -99,7 +100,6 @@ void Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrame
         this->TLy += deltaH+1; 
     }
 
-
     // Down generate 
     else if(direction == 1){
         // BRy will change 
@@ -119,8 +119,6 @@ void Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrame
 
         this->BRy += deltaH-1; 
     }
-
-
 
     // Left generate 
     if(direction == 2){
@@ -142,7 +140,6 @@ void Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrame
         this->TLx += deltaW+1; 
     }
 
-
     // Right generate 
     else if(direction == 3){
         // BRx will change 
@@ -162,11 +159,10 @@ void Shot::generate(int32_t x, int32_t y, uint32_t direction, uint32_t currFrame
 
         this->BRx += deltaW-1; 
     }
-
-
     
-
     // Update Mailbox info 
+        // Update: what frame the shot is and assert that the shot is valid
+        // Mailbox: This shot will then be used to see if a player took damage
     this->frame = currFrameIndex;
     this->valid = true;
 
