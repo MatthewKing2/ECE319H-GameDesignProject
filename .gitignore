@@ -2,6 +2,9 @@
 *
 
 # Except these:
+!CantinaWarsThumbnail.png
 !.gitignore
 !ECE319K_Lab9H/
 !inc/
+!README.md
+!license.txt
